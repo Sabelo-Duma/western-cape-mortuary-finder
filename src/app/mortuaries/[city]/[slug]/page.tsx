@@ -14,7 +14,7 @@ import {
 import { PriceBadge } from "@/components/price-badge";
 import { ViewTracker } from "@/components/view-tracker";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, ArrowLeft, Mail } from "lucide-react";
+import { MapPin, ArrowLeft, Mail, FileText } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ city: string; slug: string }>;
@@ -128,6 +128,15 @@ export default async function MortuaryDetailPage({ params }: PageProps) {
         whatsapp={mortuary.whatsapp}
         address={mortuary.address}
       />
+
+      {/* Intake Form CTA */}
+      <Link
+        href={`/mortuaries/${citySlug}/${slug}/intake`}
+        className="mt-3 flex items-center justify-center gap-2 w-full h-12 text-base font-medium rounded-md border-2 border-dashed border-[#1B4965] text-[#1B4965] bg-blue-50/50 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B4965] focus:ring-offset-2"
+      >
+        <FileText className="h-4 w-4" />
+        Start Digital Intake Form
+      </Link>
 
       <Separator className="my-4" />
 
