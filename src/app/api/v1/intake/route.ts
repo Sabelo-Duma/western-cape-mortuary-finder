@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +26,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const supabase = await createClient();
+    // Use service role client to bypass RLS for inserts
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // Verify the mortuary exists and is active
     const { data: mortuary } = await supabase
@@ -44,19 +48,46 @@ export async function POST(request: Request) {
       );
     }
 
-    // Clean up empty strings to null for optional fields
-    const cleanData: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(body)) {
-      if (typeof value === "string" && value.trim() === "") {
-        cleanData[key] = null;
-      } else {
-        cleanData[key] = value;
-      }
-    }
+    // Only include valid database columns
+    const toNull = (val: unknown) =>
+      typeof val === "string" && val.trim() === "" ? null : val;
+
+    const insertData = {
+      mortuary_id: body.mortuary_id,
+      deceased_full_name: body.deceased_full_name,
+      deceased_id_number: toNull(body.deceased_id_number),
+      deceased_date_of_birth: toNull(body.deceased_date_of_birth) || null,
+      deceased_date_of_death: body.deceased_date_of_death,
+      deceased_gender: body.deceased_gender,
+      deceased_address: toNull(body.deceased_address),
+      deceased_marital_status: toNull(body.deceased_marital_status) || null,
+      deceased_spouse_name: toNull(body.deceased_spouse_name),
+      death_scenario: body.death_scenario,
+      death_location: toNull(body.death_location),
+      hospital_name: toNull(body.hospital_name),
+      saps_case_number: toNull(body.saps_case_number),
+      doctor_name: toNull(body.doctor_name),
+      doctor_practice_number: toNull(body.doctor_practice_number),
+      doctor_phone: toNull(body.doctor_phone),
+      nok_full_name: body.nok_full_name,
+      nok_id_number: toNull(body.nok_id_number),
+      nok_relationship: body.nok_relationship,
+      nok_phone: body.nok_phone,
+      nok_email: toNull(body.nok_email),
+      nok_address: toNull(body.nok_address),
+      disposition: body.disposition || "burial",
+      religion: toNull(body.religion),
+      cultural_requirements: toNull(body.cultural_requirements),
+      urgent_burial: body.urgent_burial || false,
+      has_funeral_policy: body.has_funeral_policy || false,
+      insurance_provider: toNull(body.insurance_provider),
+      policy_number: toNull(body.policy_number),
+      additional_notes: toNull(body.additional_notes),
+    };
 
     const { data, error } = await supabase
       .from("intake_submissions")
-      .insert(cleanData)
+      .insert(insertData)
       .select("id")
       .single();
 
@@ -69,7 +100,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ id: data.id, status: "submitted" });
-  } catch {
+  } catch (err) {
+    console.error("Intake API error:", err);
     return NextResponse.json(
       { error: "Invalid request" },
       { status: 400 }

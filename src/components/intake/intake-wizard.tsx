@@ -15,9 +15,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useLanguage } from "@/lib/i18n";
 import { type IntakeFormData, INITIAL_INTAKE_DATA } from "@/types/intake";
 
 const STEPS = [
@@ -36,6 +33,132 @@ interface IntakeWizardProps {
   citySlug: string;
 }
 
+// --- Reusable form components ---
+
+function FormField({
+  label,
+  required,
+  children,
+  className = "",
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function FormInput({
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  maxLength,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  type?: string;
+  maxLength?: number;
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      maxLength={maxLength}
+      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4965] focus:border-transparent transition-shadow"
+    />
+  );
+}
+
+function FormSelect({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1B4965] focus:border-transparent transition-shadow appearance-none"
+    >
+      {children}
+    </select>
+  );
+}
+
+function FormTextarea({
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1B4965] focus:border-transparent transition-shadow resize-vertical"
+    />
+  );
+}
+
+function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="text-center mb-8">
+      <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+      <p className="text-sm text-gray-500 mt-1 max-w-md mx-auto">{subtitle}</p>
+    </div>
+  );
+}
+
+function OptionButton({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-lg border-2 px-4 py-3 text-sm text-center transition-all ${
+        selected
+          ? "border-[#1B4965] bg-[#1B4965]/5 text-[#1B4965] font-semibold shadow-sm"
+          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// --- Main Wizard ---
+
 export function IntakeWizard({
   mortuaryId,
   mortuaryName,
@@ -43,7 +166,6 @@ export function IntakeWizard({
   citySlug,
 }: IntakeWizardProps) {
   const router = useRouter();
-  const { t } = useLanguage();
   const [step, setStep] = useState(0);
   const [data, setData] = useState<IntakeFormData>(INITIAL_INTAKE_DATA);
   const [submitting, setSubmitting] = useState(false);
@@ -59,9 +181,9 @@ export function IntakeWizard({
       case 0:
         return data.deceased_full_name.trim() !== "" && data.deceased_date_of_death !== "";
       case 1:
-        return data.death_scenario !== "" as never;
+        return true;
       case 2:
-        return true; // Doctor info is optional
+        return true;
       case 3:
         return (
           data.nok_full_name.trim() !== "" &&
@@ -106,23 +228,23 @@ export function IntakeWizard({
 
   if (submitted) {
     return (
-      <div className="max-w-lg mx-auto text-center py-16 px-4">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mb-6">
-          <Check className="h-8 w-8 text-green-600" />
+      <div className="max-w-lg mx-auto text-center py-20 px-4">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 mb-8">
+          <Check className="h-10 w-10 text-green-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
           Form Submitted Successfully
         </h2>
         <p className="text-gray-600 mb-2">
           Your details have been sent to <strong>{mortuaryName}</strong>.
         </p>
-        <p className="text-sm text-gray-500 mb-8">
+        <p className="text-sm text-gray-500 mb-10">
           They will contact you shortly on <strong>{data.nok_phone}</strong> to
           confirm arrangements. If this is urgent, please call them directly.
         </p>
         <Button
           onClick={() => router.push(`/mortuaries/${citySlug}/${mortuarySlug}`)}
-          className="bg-[#1B4965] hover:bg-[#143A50]"
+          className="bg-[#1B4965] hover:bg-[#143A50] px-8 h-12"
         >
           Back to {mortuaryName}
         </Button>
@@ -133,90 +255,97 @@ export function IntakeWizard({
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <p className="text-sm text-gray-500 mb-1">
-          Submitting to: <strong>{mortuaryName}</strong>
+      <div className="text-center mb-6">
+        <p className="text-sm text-[#1B4965] font-medium mb-1">
+          {mortuaryName}
         </p>
         <h1 className="text-2xl font-bold text-gray-900">
-          Intake Form
+          Digital Intake Form
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
           We understand this is a difficult time. Take your time filling in the details below.
-          Fields marked * are required.
+        </p>
+        <p className="text-xs text-red-500 mt-2">
+          Fields marked with <span className="font-bold">*</span> are required
         </p>
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 px-2">
         {STEPS.map((s, i) => {
           const Icon = s.icon;
           const isActive = i === step;
           const isDone = i < step;
 
           return (
-            <button
-              key={s.key}
-              onClick={() => i < step && setStep(i)}
-              disabled={i > step}
-              className={`flex flex-col items-center gap-1 flex-1 transition-colors ${
-                isActive
-                  ? "text-[#1B4965]"
-                  : isDone
-                  ? "text-green-600 cursor-pointer"
-                  : "text-gray-300"
-              }`}
-            >
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
-                  isActive
-                    ? "border-[#1B4965] bg-[#1B4965] text-white"
-                    : isDone
-                    ? "border-green-500 bg-green-50 text-green-600"
-                    : "border-gray-200 bg-white text-gray-300"
+            <div key={s.key} className="flex flex-col items-center gap-1.5 flex-1">
+              <button
+                onClick={() => i < step && setStep(i)}
+                disabled={i > step}
+                className="focus:outline-none"
+              >
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border-2 transition-all ${
+                    isActive
+                      ? "border-[#1B4965] bg-[#1B4965] text-white shadow-lg shadow-[#1B4965]/20"
+                      : isDone
+                      ? "border-green-500 bg-green-500 text-white cursor-pointer"
+                      : "border-gray-200 bg-gray-50 text-gray-300"
+                  }`}
+                >
+                  {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                </div>
+              </button>
+              <span
+                className={`text-xs font-medium hidden sm:block ${
+                  isActive ? "text-[#1B4965]" : isDone ? "text-green-600" : "text-gray-400"
                 }`}
               >
-                {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-              </div>
-              <span className="text-xs font-medium hidden sm:block">{s.label}</span>
-            </button>
+                {s.label}
+              </span>
+              {/* Progress line */}
+              {i < STEPS.length - 1 && (
+                <div
+                  className={`hidden sm:block absolute h-0.5 w-[calc(100%/6-2rem)] ${
+                    isDone ? "bg-green-500" : "bg-gray-200"
+                  }`}
+                  style={{ left: `calc(${(i + 0.5) * (100 / 6)}%)`, top: "1.375rem" }}
+                />
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* Form steps */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        {step === 0 && (
-          <StepDeceased data={data} update={update} />
-        )}
-        {step === 1 && (
-          <StepDeathDetails data={data} update={update} />
-        )}
-        {step === 2 && (
-          <StepDoctor data={data} update={update} />
-        )}
-        {step === 3 && (
-          <StepNextOfKin data={data} update={update} />
-        )}
-        {step === 4 && (
-          <StepPreferences data={data} update={update} />
-        )}
-        {step === 5 && (
-          <StepInsurance data={data} update={update} />
-        )}
+      {/* Step counter */}
+      <div className="text-center mb-4">
+        <span className="inline-block text-xs font-semibold text-white bg-[#1B4965] rounded-full px-3 py-1">
+          Step {step + 1} of {STEPS.length}
+        </span>
+      </div>
+
+      {/* Form card */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-8">
+        {step === 0 && <StepDeceased data={data} update={update} />}
+        {step === 1 && <StepDeathDetails data={data} update={update} />}
+        {step === 2 && <StepDoctor data={data} update={update} />}
+        {step === 3 && <StepNextOfKin data={data} update={update} />}
+        {step === 4 && <StepPreferences data={data} update={update} />}
+        {step === 5 && <StepInsurance data={data} update={update} />}
 
         {error && (
-          <p className="mt-4 text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
+          <div className="mt-6 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-center">
             {error}
-          </p>
+          </div>
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
+        <div className="flex justify-between mt-10 pt-6 border-t border-gray-100">
           <Button
             variant="outline"
             onClick={() => setStep((s) => s - 1)}
             disabled={step === 0}
-            className="gap-2"
+            className="gap-2 h-11 px-6"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -226,7 +355,7 @@ export function IntakeWizard({
             <Button
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
-              className="gap-2 bg-[#1B4965] hover:bg-[#143A50]"
+              className="gap-2 bg-[#1B4965] hover:bg-[#143A50] h-11 px-8"
             >
               Next
               <ArrowRight className="h-4 w-4" />
@@ -235,7 +364,7 @@ export function IntakeWizard({
             <Button
               onClick={handleSubmit}
               disabled={submitting || !canProceed()}
-              className="gap-2 bg-green-600 hover:bg-green-700"
+              className="gap-2 bg-green-600 hover:bg-green-700 h-11 px-8"
             >
               {submitting ? (
                 <>
@@ -265,55 +394,48 @@ interface StepProps {
 
 function StepDeceased({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Deceased Information</h2>
-      <p className="text-sm text-gray-500">Details of the person who has passed away.</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <Label htmlFor="deceased_full_name">Full Name *</Label>
-          <Input id="deceased_full_name" value={data.deceased_full_name} onChange={(e) => update("deceased_full_name", e.target.value)} placeholder="Full name as on ID" />
-        </div>
-        <div>
-          <Label htmlFor="deceased_id_number">SA ID Number</Label>
-          <Input id="deceased_id_number" value={data.deceased_id_number} onChange={(e) => update("deceased_id_number", e.target.value)} placeholder="13-digit ID number" maxLength={13} />
-        </div>
-        <div>
-          <Label htmlFor="deceased_gender">Gender *</Label>
-          <select id="deceased_gender" value={data.deceased_gender} onChange={(e) => update("deceased_gender", e.target.value)} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]">
+    <div>
+      <StepHeader
+        title="Deceased Information"
+        subtitle="Details of the person who has passed away."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FormField label="Full Name" required className="sm:col-span-2">
+          <FormInput value={data.deceased_full_name} onChange={(v) => update("deceased_full_name", v)} placeholder="Full name as on ID document" />
+        </FormField>
+        <FormField label="SA ID Number">
+          <FormInput value={data.deceased_id_number} onChange={(v) => update("deceased_id_number", v)} placeholder="13-digit ID number" maxLength={13} />
+        </FormField>
+        <FormField label="Gender" required>
+          <FormSelect value={data.deceased_gender} onChange={(v) => update("deceased_gender", v)}>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="deceased_date_of_birth">Date of Birth</Label>
-          <Input id="deceased_date_of_birth" type="date" value={data.deceased_date_of_birth} onChange={(e) => update("deceased_date_of_birth", e.target.value)} />
-        </div>
-        <div>
-          <Label htmlFor="deceased_date_of_death">Date of Death *</Label>
-          <Input id="deceased_date_of_death" type="date" value={data.deceased_date_of_death} onChange={(e) => update("deceased_date_of_death", e.target.value)} />
-        </div>
-        <div>
-          <Label htmlFor="deceased_marital_status">Marital Status</Label>
-          <select id="deceased_marital_status" value={data.deceased_marital_status} onChange={(e) => update("deceased_marital_status", e.target.value)} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]">
+          </FormSelect>
+        </FormField>
+        <FormField label="Date of Birth">
+          <FormInput type="date" value={data.deceased_date_of_birth} onChange={(v) => update("deceased_date_of_birth", v)} />
+        </FormField>
+        <FormField label="Date of Death" required>
+          <FormInput type="date" value={data.deceased_date_of_death} onChange={(v) => update("deceased_date_of_death", v)} />
+        </FormField>
+        <FormField label="Marital Status">
+          <FormSelect value={data.deceased_marital_status} onChange={(v) => update("deceased_marital_status", v)}>
             <option value="">-- Select --</option>
             <option value="single">Single</option>
             <option value="married">Married</option>
             <option value="divorced">Divorced</option>
             <option value="widowed">Widowed</option>
-          </select>
-        </div>
+          </FormSelect>
+        </FormField>
         {data.deceased_marital_status === "married" && (
-          <div>
-            <Label htmlFor="deceased_spouse_name">Spouse Name</Label>
-            <Input id="deceased_spouse_name" value={data.deceased_spouse_name} onChange={(e) => update("deceased_spouse_name", e.target.value)} placeholder="Spouse's full name" />
-          </div>
+          <FormField label="Spouse Name">
+            <FormInput value={data.deceased_spouse_name} onChange={(v) => update("deceased_spouse_name", v)} placeholder="Spouse's full name" />
+          </FormField>
         )}
-        <div className="sm:col-span-2">
-          <Label htmlFor="deceased_address">Last Known Address</Label>
-          <Input id="deceased_address" value={data.deceased_address} onChange={(e) => update("deceased_address", e.target.value)} placeholder="Street address, suburb, city" />
-        </div>
+        <FormField label="Last Known Address" className="sm:col-span-2">
+          <FormInput value={data.deceased_address} onChange={(v) => update("deceased_address", v)} placeholder="Street address, suburb, city" />
+        </FormField>
       </div>
     </div>
   );
@@ -321,60 +443,49 @@ function StepDeceased({ data, update }: StepProps) {
 
 function StepDeathDetails({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Death Details</h2>
-      <p className="text-sm text-gray-500">Where and how the death occurred. This helps the mortuary prepare the correct paperwork.</p>
-
-      <div className="space-y-4">
-        <div>
-          <Label>Where did the death occur? *</Label>
-          <div className="grid grid-cols-2 gap-3 mt-2">
+    <div>
+      <StepHeader
+        title="Death Details"
+        subtitle="Where and how the death occurred. This helps the mortuary prepare the correct paperwork."
+      />
+      <div className="space-y-5">
+        <FormField label="Where did the death occur?" required>
+          <div className="grid grid-cols-2 gap-3 mt-1">
             {[
               { value: "hospital", label: "Hospital / Clinic" },
               { value: "home", label: "At Home" },
               { value: "unnatural", label: "Unnatural (accident, crime)" },
               { value: "other", label: "Other" },
             ].map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => update("death_scenario", opt.value)}
-                className={`rounded-lg border px-4 py-3 text-sm text-left transition-colors ${
-                  data.death_scenario === opt.value
-                    ? "border-[#1B4965] bg-blue-50 text-[#1B4965] font-medium"
-                    : "border-gray-200 text-gray-700 hover:border-gray-300"
-                }`}
-              >
+              <OptionButton key={opt.value} selected={data.death_scenario === opt.value} onClick={() => update("death_scenario", opt.value)}>
                 {opt.label}
-              </button>
+              </OptionButton>
             ))}
           </div>
-        </div>
+        </FormField>
 
         {data.death_scenario === "hospital" && (
-          <div>
-            <Label htmlFor="hospital_name">Hospital / Clinic Name</Label>
-            <Input id="hospital_name" value={data.hospital_name} onChange={(e) => update("hospital_name", e.target.value)} placeholder="e.g. Groote Schuur Hospital" />
-          </div>
+          <FormField label="Hospital / Clinic Name">
+            <FormInput value={data.hospital_name} onChange={(v) => update("hospital_name", v)} placeholder="e.g. Groote Schuur Hospital" />
+          </FormField>
         )}
 
         {data.death_scenario === "unnatural" && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-sm text-amber-800 font-medium mb-2">Important: Unnatural Deaths</p>
-            <p className="text-sm text-amber-700">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+            <p className="text-sm text-amber-800 font-semibold mb-1">Important: Unnatural Deaths</p>
+            <p className="text-sm text-amber-700 mb-4">
               For unnatural deaths (accident, suicide, homicide), SAPS must be contacted first.
-              A post-mortem will be required before the body can be released to a private mortuary.
+              A post-mortem will be required before the body can be released.
             </p>
-            <div className="mt-3">
-              <Label htmlFor="saps_case_number">SAPS Case Number (if available)</Label>
-              <Input id="saps_case_number" value={data.saps_case_number} onChange={(e) => update("saps_case_number", e.target.value)} placeholder="e.g. CAS 123/2026" className="mt-1" />
-            </div>
+            <FormField label="SAPS Case Number (if available)">
+              <FormInput value={data.saps_case_number} onChange={(v) => update("saps_case_number", v)} placeholder="e.g. CAS 123/2026" />
+            </FormField>
           </div>
         )}
 
-        <div>
-          <Label htmlFor="death_location">Specific Location / Address</Label>
-          <Input id="death_location" value={data.death_location} onChange={(e) => update("death_location", e.target.value)} placeholder="Where the body currently is" />
-        </div>
+        <FormField label="Specific Location / Address">
+          <FormInput value={data.death_location} onChange={(v) => update("death_location", v)} placeholder="Where the body currently is" />
+        </FormField>
       </div>
     </div>
   );
@@ -382,30 +493,24 @@ function StepDeathDetails({ data, update }: StepProps) {
 
 function StepDoctor({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Doctor Details</h2>
-      <p className="text-sm text-gray-500">
-        The certifying doctor completes Section B of the DHA-1663 form.
-        Provide these details if you have them — the mortuary can follow up if not.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <Label htmlFor="doctor_name">Doctor&apos;s Full Name</Label>
-          <Input id="doctor_name" value={data.doctor_name} onChange={(e) => update("doctor_name", e.target.value)} placeholder="Dr. ..." />
-        </div>
-        <div>
-          <Label htmlFor="doctor_practice_number">Practice Number</Label>
-          <Input id="doctor_practice_number" value={data.doctor_practice_number} onChange={(e) => update("doctor_practice_number", e.target.value)} placeholder="HPCSA practice number" />
-        </div>
-        <div>
-          <Label htmlFor="doctor_phone">Doctor&apos;s Phone</Label>
-          <Input id="doctor_phone" value={data.doctor_phone} onChange={(e) => update("doctor_phone", e.target.value)} placeholder="+27..." />
-        </div>
+    <div>
+      <StepHeader
+        title="Doctor Details"
+        subtitle="The certifying doctor completes Section B of the DHA-1663 form. Provide these details if you have them."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FormField label="Doctor's Full Name" className="sm:col-span-2">
+          <FormInput value={data.doctor_name} onChange={(v) => update("doctor_name", v)} placeholder="Dr. ..." />
+        </FormField>
+        <FormField label="Practice Number">
+          <FormInput value={data.doctor_practice_number} onChange={(v) => update("doctor_practice_number", v)} placeholder="HPCSA practice number" />
+        </FormField>
+        <FormField label="Doctor's Phone">
+          <FormInput value={data.doctor_phone} onChange={(v) => update("doctor_phone", v)} placeholder="+27..." />
+        </FormField>
       </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6 text-center">
+        <p className="text-sm text-blue-700">
           Don&apos;t have the doctor&apos;s details? No problem — the mortuary can obtain these from the hospital or attending physician.
         </p>
       </div>
@@ -415,24 +520,20 @@ function StepDoctor({ data, update }: StepProps) {
 
 function StepNextOfKin({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Next-of-Kin / Your Details</h2>
-      <p className="text-sm text-gray-500">
-        Your details as the person arranging the funeral. This is used for Section A of the DHA-1663 form.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <Label htmlFor="nok_full_name">Your Full Name *</Label>
-          <Input id="nok_full_name" value={data.nok_full_name} onChange={(e) => update("nok_full_name", e.target.value)} placeholder="Full name as on ID" />
-        </div>
-        <div>
-          <Label htmlFor="nok_id_number">Your SA ID Number</Label>
-          <Input id="nok_id_number" value={data.nok_id_number} onChange={(e) => update("nok_id_number", e.target.value)} placeholder="13-digit ID number" maxLength={13} />
-        </div>
-        <div>
-          <Label htmlFor="nok_relationship">Relationship to Deceased *</Label>
-          <select id="nok_relationship" value={data.nok_relationship} onChange={(e) => update("nok_relationship", e.target.value)} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]">
+    <div>
+      <StepHeader
+        title="Next-of-Kin / Your Details"
+        subtitle="Your details as the person arranging the funeral. This is used for Section A of the DHA-1663 form."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <FormField label="Your Full Name" required className="sm:col-span-2">
+          <FormInput value={data.nok_full_name} onChange={(v) => update("nok_full_name", v)} placeholder="Full name as on ID document" />
+        </FormField>
+        <FormField label="Your SA ID Number">
+          <FormInput value={data.nok_id_number} onChange={(v) => update("nok_id_number", v)} placeholder="13-digit ID number" maxLength={13} />
+        </FormField>
+        <FormField label="Relationship to Deceased" required>
+          <FormSelect value={data.nok_relationship} onChange={(v) => update("nok_relationship", v)}>
             <option value="">-- Select --</option>
             <option value="spouse">Spouse</option>
             <option value="child">Son / Daughter</option>
@@ -442,20 +543,17 @@ function StepNextOfKin({ data, update }: StepProps) {
             <option value="other_relative">Other Relative</option>
             <option value="friend">Friend</option>
             <option value="employer">Employer</option>
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="nok_phone">Your Phone Number *</Label>
-          <Input id="nok_phone" value={data.nok_phone} onChange={(e) => update("nok_phone", e.target.value)} placeholder="+27..." />
-        </div>
-        <div>
-          <Label htmlFor="nok_email">Email Address</Label>
-          <Input id="nok_email" type="email" value={data.nok_email} onChange={(e) => update("nok_email", e.target.value)} placeholder="your@email.com" />
-        </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="nok_address">Your Address</Label>
-          <Input id="nok_address" value={data.nok_address} onChange={(e) => update("nok_address", e.target.value)} placeholder="Street address, suburb, city" />
-        </div>
+          </FormSelect>
+        </FormField>
+        <FormField label="Your Phone Number" required>
+          <FormInput value={data.nok_phone} onChange={(v) => update("nok_phone", v)} placeholder="+27..." />
+        </FormField>
+        <FormField label="Email Address">
+          <FormInput type="email" value={data.nok_email} onChange={(v) => update("nok_email", v)} placeholder="your@email.com" />
+        </FormField>
+        <FormField label="Your Address" className="sm:col-span-2">
+          <FormInput value={data.nok_address} onChange={(v) => update("nok_address", v)} placeholder="Street address, suburb, city" />
+        </FormField>
       </div>
     </div>
   );
@@ -463,39 +561,28 @@ function StepNextOfKin({ data, update }: StepProps) {
 
 function StepPreferences({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Burial / Cremation Preferences</h2>
-      <p className="text-sm text-gray-500">
-        Let the mortuary know your preferences so they can prepare accordingly.
-      </p>
-
-      <div className="space-y-4">
-        <div>
-          <Label>Burial or Cremation?</Label>
-          <div className="grid grid-cols-3 gap-3 mt-2">
+    <div>
+      <StepHeader
+        title="Burial / Cremation Preferences"
+        subtitle="Let the mortuary know your preferences so they can prepare accordingly."
+      />
+      <div className="space-y-5">
+        <FormField label="Burial or Cremation?">
+          <div className="grid grid-cols-3 gap-3 mt-1">
             {[
               { value: "burial", label: "Burial" },
               { value: "cremation", label: "Cremation" },
               { value: "undecided", label: "Not Sure Yet" },
             ].map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => update("disposition", opt.value)}
-                className={`rounded-lg border px-4 py-3 text-sm text-center transition-colors ${
-                  data.disposition === opt.value
-                    ? "border-[#1B4965] bg-blue-50 text-[#1B4965] font-medium"
-                    : "border-gray-200 text-gray-700 hover:border-gray-300"
-                }`}
-              >
+              <OptionButton key={opt.value} selected={data.disposition === opt.value} onClick={() => update("disposition", opt.value)}>
                 {opt.label}
-              </button>
+              </OptionButton>
             ))}
           </div>
-        </div>
+        </FormField>
 
-        <div>
-          <Label htmlFor="religion">Religion / Faith</Label>
-          <select id="religion" value={data.religion} onChange={(e) => update("religion", e.target.value)} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]">
+        <FormField label="Religion / Faith">
+          <FormSelect value={data.religion} onChange={(v) => update("religion", v)}>
             <option value="">-- Select (optional) --</option>
             <option value="Christian">Christian</option>
             <option value="Muslim">Muslim</option>
@@ -504,25 +591,24 @@ function StepPreferences({ data, update }: StepProps) {
             <option value="Traditional African">Traditional African</option>
             <option value="No religion">No religion</option>
             <option value="Other">Other</option>
-          </select>
-        </div>
+          </FormSelect>
+        </FormField>
 
         {data.religion === "Muslim" && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={data.urgent_burial} onChange={(e) => update("urgent_burial", e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-[#1B4965] focus:ring-[#1B4965]" />
+              <input type="checkbox" checked={data.urgent_burial} onChange={(e) => update("urgent_burial", e.target.checked)} className="h-5 w-5 rounded border-gray-300 text-[#1B4965] focus:ring-[#1B4965]" />
               <div>
-                <p className="text-sm font-medium text-blue-900">Urgent burial required (within 24 hours)</p>
-                <p className="text-xs text-blue-700">The mortuary will prioritise this request.</p>
+                <p className="text-sm font-semibold text-blue-900">Urgent burial required (within 24 hours)</p>
+                <p className="text-xs text-blue-700 mt-0.5">The mortuary will prioritise this request.</p>
               </div>
             </label>
           </div>
         )}
 
-        <div>
-          <Label htmlFor="cultural_requirements">Cultural or Religious Requirements</Label>
-          <textarea id="cultural_requirements" value={data.cultural_requirements} onChange={(e) => update("cultural_requirements", e.target.value)} placeholder="Any specific rituals, washing requirements, dress code, or other needs..." rows={3} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]" />
-        </div>
+        <FormField label="Cultural or Religious Requirements">
+          <FormTextarea value={data.cultural_requirements} onChange={(v) => update("cultural_requirements", v)} placeholder="Any specific rituals, washing requirements, dress code, or other needs..." />
+        </FormField>
       </div>
     </div>
   );
@@ -530,25 +616,21 @@ function StepPreferences({ data, update }: StepProps) {
 
 function StepInsurance({ data, update }: StepProps) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Insurance / Funeral Policy</h2>
-      <p className="text-sm text-gray-500">
-        If the deceased had a funeral policy, provide the details below. This helps the mortuary assist with the claim.
-      </p>
-
-      <div className="space-y-4">
-        <label className="flex items-center gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-          <input type="checkbox" checked={data.has_funeral_policy} onChange={(e) => update("has_funeral_policy", e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-[#1B4965] focus:ring-[#1B4965]" />
-          <div>
-            <p className="text-sm font-medium text-gray-900">The deceased had a funeral policy / insurance</p>
-          </div>
+    <div>
+      <StepHeader
+        title="Insurance / Funeral Policy"
+        subtitle="If the deceased had a funeral policy, provide the details below. This helps the mortuary assist with the claim."
+      />
+      <div className="space-y-5">
+        <label className="flex items-center gap-4 cursor-pointer p-5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+          <input type="checkbox" checked={data.has_funeral_policy} onChange={(e) => update("has_funeral_policy", e.target.checked)} className="h-5 w-5 rounded border-gray-300 text-[#1B4965] focus:ring-[#1B4965]" />
+          <span className="text-sm font-medium text-gray-900">The deceased had a funeral policy / insurance</span>
         </label>
 
         {data.has_funeral_policy && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-2 border-l-2 border-[#1B4965]">
-            <div>
-              <Label htmlFor="insurance_provider">Insurance Provider</Label>
-              <select id="insurance_provider" value={data.insurance_provider} onChange={(e) => update("insurance_provider", e.target.value)} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pl-4 border-l-3 border-[#1B4965]">
+            <FormField label="Insurance Provider">
+              <FormSelect value={data.insurance_provider} onChange={(v) => update("insurance_provider", v)}>
                 <option value="">-- Select --</option>
                 <option value="AVBOB">AVBOB</option>
                 <option value="Old Mutual">Old Mutual</option>
@@ -562,19 +644,17 @@ function StepInsurance({ data, update }: StepProps) {
                 <option value="FNB">FNB Funeral Plan</option>
                 <option value="Capitec">Capitec Funeral Plan</option>
                 <option value="Other">Other</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="policy_number">Policy Number</Label>
-              <Input id="policy_number" value={data.policy_number} onChange={(e) => update("policy_number", e.target.value)} placeholder="Policy or membership number" />
-            </div>
+              </FormSelect>
+            </FormField>
+            <FormField label="Policy Number">
+              <FormInput value={data.policy_number} onChange={(v) => update("policy_number", v)} placeholder="Policy or membership number" />
+            </FormField>
           </div>
         )}
 
-        <div>
-          <Label htmlFor="additional_notes">Additional Notes</Label>
-          <textarea id="additional_notes" value={data.additional_notes} onChange={(e) => update("additional_notes", e.target.value)} placeholder="Anything else the mortuary should know..." rows={3} className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B4965]" />
-        </div>
+        <FormField label="Additional Notes">
+          <FormTextarea value={data.additional_notes} onChange={(v) => update("additional_notes", v)} placeholder="Anything else the mortuary should know..." />
+        </FormField>
       </div>
     </div>
   );
