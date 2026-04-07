@@ -8,10 +8,11 @@ import { ArrowLeft } from "lucide-react";
 import { MortuaryCard } from "@/components/mortuary-card";
 import { ShareButton } from "@/components/share-button";
 import { ServiceFilter } from "@/components/service-filter";
+import { SortSelect } from "@/components/sort-select";
 
 interface PageProps {
   params: Promise<{ city: string }>;
-  searchParams: Promise<{ services?: string }>;
+  searchParams: Promise<{ services?: string; sort?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CityMortuariesPage({ params, searchParams }: PageProps) {
   const { city: citySlug } = await params;
-  const { services: servicesParam } = await searchParams;
+  const { services: servicesParam, sort: sortParam } = await searchParams;
 
   // Validate city slug
   const cityInfo = WESTERN_CAPE_CITIES.find((c) => c.slug === citySlug);
@@ -78,6 +79,24 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
     });
   }
 
+  // Apply sorting
+  const availabilityOrder: Record<string, number> = { available: 0, limited: 1, full: 2 };
+  const priceOrder: Record<string, number> = { budget: 0, "mid-range": 1, premium: 2 };
+
+  if (sortParam === "availability") {
+    filteredMortuaries.sort((a, b) =>
+      (availabilityOrder[a.availability as string] ?? 3) - (availabilityOrder[b.availability as string] ?? 3)
+    );
+  } else if (sortParam === "price-low") {
+    filteredMortuaries.sort((a, b) =>
+      (priceOrder[a.price_range as string] ?? 3) - (priceOrder[b.price_range as string] ?? 3)
+    );
+  } else if (sortParam === "price-high") {
+    filteredMortuaries.sort((a, b) =>
+      (priceOrder[b.price_range as string] ?? -1) - (priceOrder[a.price_range as string] ?? -1)
+    );
+  }
+
   const isFiltered = activeFilters.length > 0;
 
   // Find nearby cities for empty state
@@ -114,12 +133,19 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
         />
       </div>
 
-      {/* Service Filter */}
+      {/* Filters & Sort */}
       {mortuaries.length > 0 && (
-        <div className="mb-6">
-          <Suspense fallback={null}>
-            <ServiceFilter />
-          </Suspense>
+        <div className="mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <Suspense fallback={null}>
+              <ServiceFilter />
+            </Suspense>
+          </div>
+          <div className="flex justify-end">
+            <Suspense fallback={null}>
+              <SortSelect />
+            </Suspense>
+          </div>
         </div>
       )}
 

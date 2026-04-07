@@ -96,8 +96,16 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
+        <div className="mt-8 pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
           <p>&copy; {new Date().getFullYear()} Western Cape Mortuary Finder. {t("footer.rights")}</p>
+          <div className="flex gap-4">
+            <Link href="/terms" className="hover:text-gray-600 transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/privacy" className="hover:text-gray-600 transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
