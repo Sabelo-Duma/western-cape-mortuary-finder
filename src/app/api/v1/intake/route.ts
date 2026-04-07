@@ -99,6 +99,45 @@ export async function POST(request: Request) {
       );
     }
 
+    // Send email notification if RESEND_API_KEY is configured
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const { data: mortuaryInfo } = await supabase
+          .from("mortuaries")
+          .select("name, email")
+          .eq("id", body.mortuary_id)
+          .single();
+
+        if (mortuaryInfo?.email) {
+          const { Resend } = await import("resend");
+          const resend = new Resend(process.env.RESEND_API_KEY);
+
+          await resend.emails.send({
+            from: "WC Mortuary Finder <notifications@mortuaryfinder.co.za>",
+            to: mortuaryInfo.email,
+            subject: `New Intake Form: ${body.deceased_full_name}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 500px;">
+                <h2 style="color: #1B4965;">New Intake Submission</h2>
+                <p>A family has submitted an intake form for your mortuary.</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 8px; color: #666;">Deceased</td><td style="padding: 8px; font-weight: bold;">${body.deceased_full_name}</td></tr>
+                  <tr><td style="padding: 8px; color: #666;">Date of Death</td><td style="padding: 8px;">${body.deceased_date_of_death}</td></tr>
+                  <tr><td style="padding: 8px; color: #666;">Contact Person</td><td style="padding: 8px; font-weight: bold;">${body.nok_full_name} (${body.nok_relationship})</td></tr>
+                  <tr><td style="padding: 8px; color: #666;">Phone</td><td style="padding: 8px;"><a href="tel:${body.nok_phone}">${body.nok_phone}</a></td></tr>
+                  ${body.urgent_burial ? '<tr><td colspan="2" style="padding: 8px; color: red; font-weight: bold;">⚠ URGENT BURIAL REQUESTED (within 24 hours)</td></tr>' : ""}
+                </table>
+                <p style="margin-top: 16px;">Log in to your <a href="https://western-cape-mortuary-finder.vercel.app/admin/dashboard">Owner Dashboard</a> to view full details.</p>
+              </div>
+            `,
+          });
+        }
+      } catch (emailErr) {
+        // Non-blocking — don't fail the submission if email fails
+        console.error("Email notification error:", emailErr);
+      }
+    }
+
     return NextResponse.json({ id: data.id, status: "submitted" });
   } catch (err) {
     console.error("Intake API error:", err);
