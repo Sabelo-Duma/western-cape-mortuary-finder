@@ -15,6 +15,8 @@ import { PriceBadge } from "@/components/price-badge";
 import { ViewTracker } from "@/components/view-tracker";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, ArrowLeft, Mail, FileText } from "lucide-react";
+import { ReviewList } from "@/components/reviews/review-list";
+import { ReviewForm } from "@/components/reviews/review-form";
 
 interface PageProps {
   params: Promise<{ city: string; slug: string }>;
@@ -68,6 +70,14 @@ export default async function MortuaryDetailPage({ params }: PageProps) {
   if (!mortuary) {
     notFound();
   }
+
+  // Fetch approved reviews
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("id, reviewer_name, rating, comment, created_at")
+    .eq("mortuary_id", mortuary.id)
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false });
 
   const services = (mortuary.mortuary_services as Array<{ id: string; service_name: string }>) || [];
   const hours = (mortuary.mortuary_hours as Array<{
@@ -179,6 +189,17 @@ export default async function MortuaryDetailPage({ params }: PageProps) {
           </a>
         </div>
       )}
+
+      <Separator className="my-4" />
+
+      {/* Reviews */}
+      <section>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Reviews</h2>
+        <ReviewList reviews={reviews || []} />
+        <div className="mt-4">
+          <ReviewForm mortuaryId={mortuary.id} mortuaryName={mortuary.name} />
+        </div>
+      </section>
     </main>
   );
 }

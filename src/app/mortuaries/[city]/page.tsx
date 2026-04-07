@@ -9,6 +9,7 @@ import { MortuaryCard } from "@/components/mortuary-card";
 import { ShareButton } from "@/components/share-button";
 import { ServiceFilter } from "@/components/service-filter";
 import { SortSelect } from "@/components/sort-select";
+import { MortuaryMap } from "@/components/mortuary-map";
 
 interface PageProps {
   params: Promise<{ city: string }>;
@@ -53,7 +54,7 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
       .select(
         `
         id, name, slug, address, phone, whatsapp, availability,
-        price_range, description,
+        price_range, description, latitude, longitude,
         mortuary_services (id, service_name),
         mortuary_hours (id, day_of_week, open_time, close_time, is_closed)
       `
@@ -147,6 +148,22 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
             </Suspense>
           </div>
         </div>
+      )}
+
+      {/* Map */}
+      {filteredMortuaries.length > 0 && (
+        <MortuaryMap
+          mortuaries={filteredMortuaries.map((m) => ({
+            name: m.name as string,
+            slug: m.slug as string,
+            address: m.address as string,
+            availability: m.availability as string,
+            latitude: m.latitude as number | null,
+            longitude: m.longitude as number | null,
+          }))}
+          citySlug={citySlug}
+          cityName={cityInfo.name}
+        />
       )}
 
       {/* Results */}
