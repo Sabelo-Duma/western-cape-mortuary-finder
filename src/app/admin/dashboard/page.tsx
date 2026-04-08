@@ -27,6 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n";
 
 interface MortuaryData {
   id: string;
@@ -59,6 +60,7 @@ interface IntakeSubmission {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [mortuary, setMortuary] = useState<MortuaryData | null>(null);
   const [availability, setAvailability] = useState<AvailabilityStatus>("available");
   const [submissions, setSubmissions] = useState<IntakeSubmission[]>([]);
@@ -179,7 +181,7 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <main className="flex-1 flex items-center justify-center">
-        <p className="text-gray-500">Loading dashboard...</p>
+        <p className="text-gray-500">{t("admin.loading")}</p>
       </main>
     );
   }
@@ -196,17 +198,17 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("admin.dashboard")}</h1>
           <p className="text-gray-600 text-sm">{mortuary.name}</p>
         </div>
         <Button variant="outline" size="sm" onClick={handleLogout}>
-          Logout
+          {t("admin.logout")}
         </Button>
       </div>
 
       {!mortuary.is_active && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm rounded-lg p-3 mb-4">
-          Your listing is paused and not visible to the public.
+          {t("admin.listingPaused")}
         </div>
       )}
 
@@ -215,17 +217,17 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
           <Eye className="h-5 w-5 text-gray-400 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">{mortuary.view_count}</p>
-          <p className="text-xs text-gray-500">Views</p>
+          <p className="text-xs text-gray-500">{t("admin.views")}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
           <Phone className="h-5 w-5 text-gray-400 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">{mortuary.contact_clicks}</p>
-          <p className="text-xs text-gray-500">Contacts</p>
+          <p className="text-xs text-gray-500">{t("admin.contacts")}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
           <FileText className="h-5 w-5 text-gray-400 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">{submissions.length}</p>
-          <p className="text-xs text-gray-500">Submissions</p>
+          <p className="text-xs text-gray-500">{t("admin.submissions")}</p>
         </div>
       </div>
 
@@ -246,11 +248,11 @@ export default function AdminDashboardPage() {
               )}
             </div>
             <div>
-              <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} Plan</p>
+              <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} {t("admin.currentPlan")}</p>
               <p className="text-xs text-gray-500">
-                {mortuary.subscription_tier === "free" ? "R0 — Basic listing only" :
-                 mortuary.subscription_tier === "standard" ? "R299/month — full features" :
-                 "R599/month — priority placement & verified badge"}
+                {mortuary.subscription_tier === "free" ? t("admin.freePlan") :
+                 mortuary.subscription_tier === "standard" ? t("admin.standardPlan") :
+                 t("admin.premiumPlan")}
               </p>
             </div>
           </div>
@@ -259,33 +261,33 @@ export default function AdminDashboardPage() {
               href="/pricing"
               className="text-sm font-medium text-white bg-[#1B4965] hover:bg-[#143A50] px-4 py-2 rounded-lg transition-colors"
             >
-              Upgrade
+              {t("admin.upgrade")}
             </Link>
           )}
         </div>
 
         {/* Feature checklist */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
-          <PlanFeature label="Listed on platform" active={true} />
-          <PlanFeature label="Name, address, phone" active={true} />
-          <PlanFeature label="Availability status" active={true} />
-          <PlanFeature label="Services & hours" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="WhatsApp button" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Intake form submissions" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Price range badge" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Analytics (views/contacts)" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Map pin" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Reviews" active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label="Email notifications" active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label="Verified Partner badge" active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label="Priority placement (listed first)" active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label="Featured on homepage" active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.listed")} active={true} />
+          <PlanFeature label={t("plan.nameAddressPhone")} active={true} />
+          <PlanFeature label={t("plan.availability")} active={true} />
+          <PlanFeature label={t("plan.servicesHours")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.whatsapp")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.intakeForms")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.priceRange")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.analytics")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.mapPin")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.reviews")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.emailNotifications")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.verifiedBadge")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.priorityPlacement")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.featuredHomepage")} active={mortuary.subscription_tier === "premium"} />
         </div>
       </section>
 
       {/* Availability Update */}
       <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-        <h2 className="font-semibold text-gray-900 mb-3">Availability Status</h2>
+        <h2 className="font-semibold text-gray-900 mb-3">{t("admin.availabilityStatus")}</h2>
 
         <RadioGroup
           value={availability}
@@ -309,7 +311,7 @@ export default function AdminDashboardPage() {
           className="w-full mt-4 bg-[#1B4965] hover:bg-[#143A50]"
           disabled={saving || availability === mortuary.availability}
         >
-          {saving ? "Saving..." : "Update Availability"}
+          {saving ? t("admin.saving") : t("admin.updateAvailability")}
         </Button>
       </section>
 
@@ -317,15 +319,15 @@ export default function AdminDashboardPage() {
       <section className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            Intake Submissions
+            {t("admin.intakeSubmissions")}
             {newCount > 0 && (
               <Badge className="bg-red-500 text-white text-xs px-2 py-0.5">
-                {newCount} new
+                {newCount} {t("admin.new")}
               </Badge>
             )}
             {inProgressCount > 0 && (
               <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs px-2 py-0.5">
-                {inProgressCount} in progress
+                {inProgressCount} {t("admin.inProgress")}
               </Badge>
             )}
           </h2>
@@ -334,9 +336,9 @@ export default function AdminDashboardPage() {
         {submissions.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
             <FileText className="h-8 w-8 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-500">No intake submissions yet.</p>
+            <p className="text-sm text-gray-500">{t("admin.noSubmissions")}</p>
             <p className="text-xs text-gray-400 mt-1">
-              When families submit intake forms for your mortuary, they will appear here.
+              {t("admin.noSubmissionsSub")}
             </p>
           </div>
         ) : (
@@ -393,7 +395,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                       {sub.urgent_burial && (
                         <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">
-                          URGENT
+                          {t("admin.urgent")}
                         </Badge>
                       )}
                       <Badge
@@ -423,7 +425,7 @@ export default function AdminDashboardPage() {
                         {/* Deceased */}
                         <div className="sm:col-span-2">
                           <h3 className="font-semibold text-gray-800 flex items-center gap-1.5 mb-2">
-                            <User className="h-4 w-4" /> Deceased
+                            <User className="h-4 w-4" /> {t("admin.deceased")}
                           </h3>
                         </div>
                         <DetailRow label="Full Name" value={sub.deceased_full_name} />
@@ -435,7 +437,7 @@ export default function AdminDashboardPage() {
                         {/* Next-of-Kin */}
                         <div className="sm:col-span-2 mt-2">
                           <h3 className="font-semibold text-gray-800 flex items-center gap-1.5 mb-2">
-                            <Phone className="h-4 w-4" /> Next-of-Kin
+                            <Phone className="h-4 w-4" /> {t("admin.nextOfKin")}
                           </h3>
                         </div>
                         <DetailRow label="Name" value={sub.nok_full_name} />
@@ -447,7 +449,7 @@ export default function AdminDashboardPage() {
                         {sub.has_funeral_policy && (
                           <>
                             <div className="sm:col-span-2 mt-2">
-                              <h3 className="font-semibold text-gray-800 mb-2">Insurance</h3>
+                              <h3 className="font-semibold text-gray-800 mb-2">{t("admin.insurance")}</h3>
                             </div>
                             <DetailRow label="Provider" value={sub.insurance_provider || "Not specified"} />
                           </>
@@ -456,7 +458,7 @@ export default function AdminDashboardPage() {
                         {/* Notes */}
                         {sub.additional_notes && (
                           <div className="sm:col-span-2 mt-2">
-                            <p className="text-xs font-medium text-gray-500 mb-1">Notes</p>
+                            <p className="text-xs font-medium text-gray-500 mb-1">{t("admin.notes")}</p>
                             <p className="text-sm text-gray-700 bg-white rounded-lg p-3 border border-gray-200">
                               {sub.additional_notes}
                             </p>
@@ -467,7 +469,7 @@ export default function AdminDashboardPage() {
                         <div className="sm:col-span-2 mt-2">
                           <p className="text-xs text-gray-400 flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            Submitted: {new Date(sub.created_at).toLocaleString("en-ZA")}
+                            {t("admin.submitted")} {new Date(sub.created_at).toLocaleString("en-ZA")}
                           </p>
                         </div>
                       </div>
@@ -480,7 +482,7 @@ export default function AdminDashboardPage() {
                             className="bg-amber-500 hover:bg-amber-600 text-white"
                             onClick={() => handleUpdateSubmissionStatus(sub.id, "in-progress")}
                           >
-                            Mark In Progress
+                            {t("admin.markInProgress")}
                           </Button>
                         )}
                         {(sub.status === "new" || sub.status === "in-progress") && (
@@ -489,7 +491,7 @@ export default function AdminDashboardPage() {
                             className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => handleUpdateSubmissionStatus(sub.id, "completed")}
                           >
-                            Mark Completed
+                            {t("admin.markCompleted")}
                           </Button>
                         )}
                         <a
@@ -497,7 +499,7 @@ export default function AdminDashboardPage() {
                           className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1B4965] hover:underline ml-auto"
                         >
                           <Phone className="h-3.5 w-3.5" />
-                          Call {sub.nok_full_name}
+                          {t("admin.callNok")} {sub.nok_full_name}
                         </a>
                       </div>
                     </div>
@@ -518,14 +520,14 @@ export default function AdminDashboardPage() {
           className="w-full"
           onClick={() => router.push("/admin/onboarding")}
         >
-          Edit Listing Details &rarr;
+          {t("admin.editListing")} &rarr;
         </Button>
         <Button
           variant={mortuary.is_active ? "destructive" : "default"}
           className="w-full"
           onClick={handleToggleListing}
         >
-          {mortuary.is_active ? "Pause Listing" : "Unpause Listing"}
+          {mortuary.is_active ? t("admin.pauseListing") : t("admin.unpauseListing")}
         </Button>
       </div>
     </main>
