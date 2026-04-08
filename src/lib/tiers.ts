@@ -4,6 +4,7 @@ export const TIER_FEATURES: Record<SubscriptionTier, Set<string>> = {
   free: new Set([
     "listed",
     "name_address_phone",
+    "availability",
   ]),
   standard: new Set([
     "listed",
@@ -15,7 +16,6 @@ export const TIER_FEATURES: Record<SubscriptionTier, Set<string>> = {
     "price_range",
     "analytics",
     "map_pin",
-    "reviews",
   ]),
   premium: new Set([
     "listed",

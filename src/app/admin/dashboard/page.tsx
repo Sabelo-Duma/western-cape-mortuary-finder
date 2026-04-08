@@ -268,14 +268,14 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
           <PlanFeature label="Listed on platform" active={true} />
           <PlanFeature label="Name, address, phone" active={true} />
-          <PlanFeature label="Availability status" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Availability status" active={true} />
           <PlanFeature label="Services & hours" active={mortuary.subscription_tier !== "free"} />
           <PlanFeature label="WhatsApp button" active={mortuary.subscription_tier !== "free"} />
           <PlanFeature label="Intake form submissions" active={mortuary.subscription_tier !== "free"} />
           <PlanFeature label="Price range badge" active={mortuary.subscription_tier !== "free"} />
           <PlanFeature label="Analytics (views/contacts)" active={mortuary.subscription_tier !== "free"} />
           <PlanFeature label="Map pin" active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label="Reviews" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Reviews" active={mortuary.subscription_tier === "premium"} />
           <PlanFeature label="Email notifications" active={mortuary.subscription_tier === "premium"} />
           <PlanFeature label="Verified Partner badge" active={mortuary.subscription_tier === "premium"} />
           <PlanFeature label="Priority placement (listed first)" active={mortuary.subscription_tier === "premium"} />

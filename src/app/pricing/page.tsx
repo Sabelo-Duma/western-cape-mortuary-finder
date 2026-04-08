@@ -21,7 +21,7 @@ const TIERS = [
     features: [
       { text: "Listed on the platform", included: true },
       { text: "Name, address, phone number", included: true },
-      { text: "Update availability status", included: false },
+      { text: "Update availability status", included: true },
       { text: "Services & operating hours", included: false },
       { text: "WhatsApp button", included: false },
       { text: "Receive intake form submissions", included: false },
@@ -55,7 +55,7 @@ const TIERS = [
       { text: "Price range badge", included: true },
       { text: "View & contact analytics", included: true },
       { text: "Map pin", included: true },
-      { text: "Receive reviews", included: true },
+      { text: "Receive reviews", included: false },
       { text: "Email notifications", included: false },
       { text: "Verified Partner badge", included: false },
       { text: "Priority placement", included: false },
@@ -96,11 +96,10 @@ export default function PricingPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-[#1B4965] to-[#5FA8D3] text-white py-16 text-center px-4">
         <h1 className="text-3xl sm:text-4xl font-bold">
-          Simple, Transparent Pricing
+          Plans That Grow With Your Business
         </h1>
         <p className="mt-3 text-lg text-blue-100 max-w-xl mx-auto">
-          Choose the plan that fits your mortuary. Start free, upgrade when
-          you&apos;re ready.
+          Start free and upgrade when you need more visibility and features.
         </p>
         <p className="mt-2 text-sm text-blue-200">
           One funeral booking pays for months of your subscription.
