@@ -270,6 +270,9 @@ export default function OnboardingPage() {
       );
 
       toast.success("Listing updated!");
+      setSaving(false);
+      router.replace("/admin/dashboard");
+      return;
     } else {
       // Insert new
       const { data: newMortuary, error } = await supabase
@@ -279,7 +282,8 @@ export default function OnboardingPage() {
         .single();
 
       if (error || !newMortuary) {
-        toast.error("Failed to create listing. Please try again.");
+        console.error("Create listing error:", error);
+        toast.error(error?.message || "Failed to create listing. Please try again.");
         setSaving(false);
         return;
       }
@@ -309,7 +313,7 @@ export default function OnboardingPage() {
     }
 
     setSaving(false);
-    router.push("/admin/dashboard");
+    router.replace("/admin/dashboard");
   };
 
   if (loading) {
