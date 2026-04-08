@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
 
       {/* Current Plan */}
       <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
               mortuary.subscription_tier === "premium" ? "bg-amber-100" :
@@ -248,7 +248,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} Plan</p>
               <p className="text-xs text-gray-500">
-                {mortuary.subscription_tier === "free" ? "Basic listing only" :
+                {mortuary.subscription_tier === "free" ? "R0 — Basic listing only" :
                  mortuary.subscription_tier === "standard" ? "R299/month — full features" :
                  "R599/month — priority placement & verified badge"}
               </p>
@@ -257,11 +257,29 @@ export default function AdminDashboardPage() {
           {mortuary.subscription_tier !== "premium" && (
             <Link
               href="/pricing"
-              className="text-sm font-medium text-[#1B4965] hover:underline"
+              className="text-sm font-medium text-white bg-[#1B4965] hover:bg-[#143A50] px-4 py-2 rounded-lg transition-colors"
             >
-              Upgrade &rarr;
+              Upgrade
             </Link>
           )}
+        </div>
+
+        {/* Feature checklist */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
+          <PlanFeature label="Listed on platform" active={true} />
+          <PlanFeature label="Name, address, phone" active={true} />
+          <PlanFeature label="Availability status" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Services & hours" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="WhatsApp button" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Intake form submissions" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Price range badge" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Analytics (views/contacts)" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Map pin" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Reviews" active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label="Email notifications" active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label="Verified Partner badge" active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label="Priority placement (listed first)" active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label="Featured on homepage" active={mortuary.subscription_tier === "premium"} />
         </div>
       </section>
 
@@ -511,6 +529,19 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
     </main>
+  );
+}
+
+function PlanFeature({ label, active }: { label: string; active: boolean }) {
+  return (
+    <div className={`flex items-center gap-2 py-1 ${active ? "text-gray-700" : "text-gray-400"}`}>
+      {active ? (
+        <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+      ) : (
+        <AlertCircle className="h-3.5 w-3.5 text-gray-300 flex-shrink-0" />
+      )}
+      <span className="text-xs">{label}</span>
+    </div>
   );
 }
 
