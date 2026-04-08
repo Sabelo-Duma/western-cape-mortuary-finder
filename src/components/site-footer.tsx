@@ -58,7 +58,7 @@ export function SiteFooter() {
                   href="/pricing"
                   className="hover:text-gray-900 transition-colors"
                 >
-                  Pricing
+                  {t("footer.pricing")}
                 </Link>
               </li>
             </ul>
@@ -108,10 +108,10 @@ export function SiteFooter() {
           <p>&copy; {new Date().getFullYear()} Western Cape Mortuary Finder. {t("footer.rights")}</p>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-gray-600 transition-colors">
-              Terms of Service
+              {t("footer.terms")}
             </Link>
             <Link href="/privacy" className="hover:text-gray-600 transition-colors">
-              Privacy Policy
+              {t("footer.privacy")}
             </Link>
           </div>
         </div>
