@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { type AvailabilityStatus } from "@/types/mortuary";
-import { AVAILABILITY_LABELS } from "@/lib/constants";
 import {
   Eye,
   Phone,
@@ -294,13 +293,13 @@ export default function AdminDashboardPage() {
           onValueChange={(v) => setAvailability(v as AvailabilityStatus)}
           className="space-y-3"
         >
-          {(
-            Object.entries(AVAILABILITY_LABELS) as [AvailabilityStatus, string][]
-          ).map(([value, label]) => (
+          {(["available", "limited", "full"] as AvailabilityStatus[]).map((value) => (
             <div key={value} className="flex items-center space-x-3">
               <RadioGroupItem value={value} id={`avail-${value}`} />
               <Label htmlFor={`avail-${value}`} className="cursor-pointer">
-                {label}
+                {value === "available" ? t("availability.available") :
+                 value === "limited" ? t("availability.limited") :
+                 t("availability.full")}
               </Label>
             </div>
           ))}
