@@ -22,12 +22,17 @@ import {
   User,
   Calendar,
   AlertCircle,
+  Crown,
+  Star,
+  Zap,
 } from "lucide-react";
+import Link from "next/link";
 
 interface MortuaryData {
   id: string;
   name: string;
   availability: AvailabilityStatus;
+  subscription_tier: string;
   is_active: boolean;
   view_count: number;
   contact_clicks: number;
@@ -77,7 +82,7 @@ export default function AdminDashboardPage() {
 
       const { data, error } = await supabase
         .from("mortuaries")
-        .select("id, name, availability, is_active, view_count, contact_clicks")
+        .select("id, name, availability, subscription_tier, is_active, view_count, contact_clicks")
         .eq("owner_id", user.id)
         .single();
 
@@ -223,6 +228,42 @@ export default function AdminDashboardPage() {
           <p className="text-xs text-gray-500">Submissions</p>
         </div>
       </div>
+
+      {/* Current Plan */}
+      <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+              mortuary.subscription_tier === "premium" ? "bg-amber-100" :
+              mortuary.subscription_tier === "standard" ? "bg-blue-100" : "bg-gray-100"
+            }`}>
+              {mortuary.subscription_tier === "premium" ? (
+                <Crown className="h-5 w-5 text-amber-600" />
+              ) : mortuary.subscription_tier === "standard" ? (
+                <Star className="h-5 w-5 text-[#1B4965]" />
+              ) : (
+                <Zap className="h-5 w-5 text-gray-500" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} Plan</p>
+              <p className="text-xs text-gray-500">
+                {mortuary.subscription_tier === "free" ? "Basic listing only" :
+                 mortuary.subscription_tier === "standard" ? "R299/month — full features" :
+                 "R599/month — priority placement & verified badge"}
+              </p>
+            </div>
+          </div>
+          {mortuary.subscription_tier !== "premium" && (
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-[#1B4965] hover:underline"
+            >
+              Upgrade &rarr;
+            </Link>
+          )}
+        </div>
+      </section>
 
       {/* Availability Update */}
       <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">

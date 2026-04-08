@@ -8,6 +8,8 @@ export interface City {
   province: string;
 }
 
+export type SubscriptionTier = "free" | "standard" | "premium";
+
 export interface Mortuary {
   id: string;
   owner_id: string;
@@ -23,6 +25,9 @@ export interface Mortuary {
   longitude: number | null;
   availability: AvailabilityStatus;
   price_range: PriceRange | null;
+  subscription_tier: SubscriptionTier;
+  is_featured: boolean;
+  verified_partner: boolean;
   is_active: boolean;
   is_approved: boolean;
   view_count: number;

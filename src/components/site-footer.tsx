@@ -53,6 +53,14 @@ export function SiteFooter() {
                   {t("footer.ownerLogin")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/pricing"
+                  className="hover:text-gray-900 transition-colors"
+                >
+                  Pricing
+                </Link>
+              </li>
             </ul>
           </div>
 

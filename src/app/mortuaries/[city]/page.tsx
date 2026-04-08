@@ -55,6 +55,7 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
         `
         id, name, slug, address, phone, whatsapp, availability,
         price_range, description, latitude, longitude,
+        subscription_tier, verified_partner, is_featured,
         mortuary_services (id, service_name),
         mortuary_hours (id, day_of_week, open_time, close_time, is_closed)
       `
@@ -80,23 +81,25 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
     });
   }
 
-  // Apply sorting
+  // Apply sorting — premium mortuaries always first (priority placement)
+  const tierOrder: Record<string, number> = { premium: 0, standard: 1, free: 2 };
   const availabilityOrder: Record<string, number> = { available: 0, limited: 1, full: 2 };
   const priceOrder: Record<string, number> = { budget: 0, "mid-range": 1, premium: 2 };
 
-  if (sortParam === "availability") {
-    filteredMortuaries.sort((a, b) =>
-      (availabilityOrder[a.availability as string] ?? 3) - (availabilityOrder[b.availability as string] ?? 3)
-    );
-  } else if (sortParam === "price-low") {
-    filteredMortuaries.sort((a, b) =>
-      (priceOrder[a.price_range as string] ?? 3) - (priceOrder[b.price_range as string] ?? 3)
-    );
-  } else if (sortParam === "price-high") {
-    filteredMortuaries.sort((a, b) =>
-      (priceOrder[b.price_range as string] ?? -1) - (priceOrder[a.price_range as string] ?? -1)
-    );
-  }
+  // Always sort by tier first (premium on top), then by user-selected sort
+  filteredMortuaries.sort((a, b) => {
+    const tierDiff = (tierOrder[a.subscription_tier as string] ?? 2) - (tierOrder[b.subscription_tier as string] ?? 2);
+    if (tierDiff !== 0) return tierDiff;
+
+    if (sortParam === "availability") {
+      return (availabilityOrder[a.availability as string] ?? 3) - (availabilityOrder[b.availability as string] ?? 3);
+    } else if (sortParam === "price-low") {
+      return (priceOrder[a.price_range as string] ?? 3) - (priceOrder[b.price_range as string] ?? 3);
+    } else if (sortParam === "price-high") {
+      return (priceOrder[b.price_range as string] ?? -1) - (priceOrder[a.price_range as string] ?? -1);
+    }
+    return (a.name as string).localeCompare(b.name as string);
+  });
 
   const isFiltered = activeFilters.length > 0;
 
@@ -150,17 +153,22 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
         </div>
       )}
 
-      {/* Map */}
+      {/* Map — only show mortuaries with map_pin feature (standard+) */}
       {filteredMortuaries.length > 0 && (
         <MortuaryMap
-          mortuaries={filteredMortuaries.map((m) => ({
-            name: m.name as string,
-            slug: m.slug as string,
-            address: m.address as string,
-            availability: m.availability as string,
-            latitude: m.latitude as number | null,
-            longitude: m.longitude as number | null,
-          }))}
+          mortuaries={filteredMortuaries
+            .filter((m) => {
+              const t = (m.subscription_tier as string) || "free";
+              return t === "standard" || t === "premium";
+            })
+            .map((m) => ({
+              name: m.name as string,
+              slug: m.slug as string,
+              address: m.address as string,
+              availability: m.availability as string,
+              latitude: m.latitude as number | null,
+              longitude: m.longitude as number | null,
+            }))}
           citySlug={citySlug}
           cityName={cityInfo.name}
         />
