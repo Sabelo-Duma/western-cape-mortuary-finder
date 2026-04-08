@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, X, Star, Zap, Crown } from "lucide-react";
+import { Check, X, Star, Zap, Crown, ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Pricing | Western Cape Mortuary Finder",
@@ -93,6 +93,17 @@ const TIERS = [
 export default function PricingPage() {
   return (
     <main className="flex-1">
+      {/* Back to dashboard */}
+      <div className="max-w-5xl mx-auto px-4 pt-4">
+        <Link
+          href="/admin/dashboard"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Dashboard
+        </Link>
+      </div>
+
       {/* Hero */}
       <section className="bg-gradient-to-br from-[#1B4965] to-[#5FA8D3] text-white py-16 text-center px-4">
         <h1 className="text-3xl sm:text-4xl font-bold">
