@@ -153,13 +153,13 @@ export default async function CityMortuariesPage({ params, searchParams }: PageP
         </div>
       )}
 
-      {/* Map — only show mortuaries with map_pin feature (standard+) */}
+      {/* Map — only for standard+ tiers */}
       {filteredMortuaries.length > 0 && (
         <MortuaryMap
           mortuaries={filteredMortuaries
             .filter((m) => {
-              const t = (m.subscription_tier as string) || "free";
-              return t === "standard" || t === "premium";
+              const tier = (m.subscription_tier as string) || "free";
+              return tier === "standard" || tier === "premium";
             })
             .map((m) => ({
               name: m.name as string,
