@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Western Cape Mortuary Finder — System Architecture</title>
+<style>
+  @page { size: A4; margin: 20mm 15mm; }
+  @media print { .page-break { page-break-before: always; } }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; line-height: 1.6; color: #1a1a1a; max-width: 210mm; margin: 0 auto; padding: 15mm; }
+  h1 { font-size: 28px; color: #1B4965; margin-bottom: 4px; }
+  h2 { font-size: 20px; color: #1B4965; margin-top: 28px; margin-bottom: 12px; border-bottom: 2px solid #1B4965; padding-bottom: 4px; }
+  h3 { font-size: 14px; color: #2d6a8a; margin-top: 18px; margin-bottom: 8px; }
+  p { margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.5px; }
+  th { background: #1B4965; color: white; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f8f9fa; }
+  pre { background: #1a2332; color: #e0e0e0; padding: 14px; border-radius: 6px; font-size: 10px; line-height: 1.5; overflow-x: auto; margin: 10px 0 16px; font-family: 'Consolas', 'Courier New', monospace; }
+  .subtitle { font-size: 16px; color: #5FA8D3; margin-bottom: 20px; }
+  .meta { font-size: 10px; color: #888; margin-bottom: 24px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 16px 0; }
+  .stat-box { background: #f0f7fb; border: 1px solid #d0e4ef; border-radius: 6px; padding: 10px; text-align: center; }
+  .stat-box .num { font-size: 22px; font-weight: 700; color: #1B4965; }
+  .stat-box .label { font-size: 9px; color: #666; }
+  .layer-box { border-left: 3px solid #1B4965; padding: 8px 12px; margin: 6px 0; background: #f8f9fa; }
+  .layer-box strong { color: #1B4965; }
+  .highlight { background: #fff3cd; padding: 8px 12px; border-left: 3px solid #ffc107; margin: 10px 0; font-size: 10.5px; }
+  .green { color: #16a34a; }
+  .red { color: #dc2626; }
+  .gray { color: #999; }
+  ul { padding-left: 20px; margin-bottom: 8px; }
+  li { margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div style="text-align:center; padding-top:60px;">
+  <div style="font-size:12px; color:#5FA8D3; letter-spacing:3px; margin-bottom:20px;">SYSTEM ARCHITECTURE DOCUMENT</div>
+  <h1 style="font-size:36px; margin-bottom:8px;">Western Cape<br>Mortuary Finder</h1>
+  <p class="subtitle">Full System Design & Architecture</p>
+  <p class="meta">Version 1.0 &bull; April 2026 &bull; Next.js + Supabase + Vercel</p>
+  <p class="meta">Live: western-cape-mortuary-finder.vercel.app</p>
+  <p class="meta">Repository: github.com/Sabelo-Duma/western-cape-mortuary-finder</p>
+
+  <div class="stat-grid" style="margin-top:40px;">
+    <div class="stat-box"><div class="num">12</div><div class="label">Pages</div></div>
+    <div class="stat-box"><div class="num">32</div><div class="label">Components</div></div>
+    <div class="stat-box"><div class="num">8</div><div class="label">API Endpoints</div></div>
+    <div class="stat-box"><div class="num">6</div><div class="label">DB Tables</div></div>
+    <div class="stat-box"><div class="num">3</div><div class="label">Languages</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: PROBLEM & SOLUTION -->
+<div class="page-break"></div>
+<h2>1. The Problem We're Solving</h2>
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:12px 0;">
+  <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:10px;">
+    <strong style="color:#dc2626;">No Centralized Directory</strong><br>
+    <span style="font-size:10px;">Families in distress have no single place to find mortuaries with available space</span>
+  </div>
+  <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:10px;">
+    <strong style="color:#dc2626;">Paper-Based Intake</strong><br>
+    <span style="font-size:10px;">30+ minutes of manual paperwork during the worst moment of their lives</span>
+  </div>
+  <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:10px;">
+    <strong style="color:#dc2626;">Digital Divide</strong><br>
+    <span style="font-size:10px;">Many South Africans rely on basic phones without internet access</span>
+  </div>
+</div>
+
+<h3>Our Solution</h3>
+<div class="highlight">
+  A full-stack web platform enabling bereaved families across <strong>10 Western Cape cities</strong> to locate, compare, and engage mortuary services — with <strong>SMS/USSD access</strong>, <strong>digital intake forms</strong>, and <strong>multilingual support</strong> (English + Afrikaans + isiXhosa).
+</div>
+
+<h3>Key Business Goals</h3>
+<ul>
+  <li><strong>Real-time availability</strong> — first app in SA showing which mortuaries have space RIGHT NOW</li>
+  <li><strong>Digitize intake</strong> — 6-step wizard replaces paper forms (pre-fills DHA-1663 Section A)</li>
+  <li><strong>Bridge the digital divide</strong> — SMS endpoint for feature-phone users</li>
+  <li><strong>Revenue via SaaS</strong> — 3 subscription tiers for mortuary operators</li>
+  <li><strong>Owner analytics</strong> — view counts, contact clicks, intake submissions</li>
+</ul>
+
+<h3>Subscription Tiers</h3>
+<table>
+  <tr><th>Feature</th><th>Free (R0)</th><th>Standard (R299/mo)</th><th>Premium (R599/mo)</th></tr>
+  <tr><td>Listed + Name + Phone</td><td class="green">Yes</td><td class="green">Yes</td><td class="green">Yes</td></tr>
+  <tr><td>Availability Status</td><td class="green">Yes</td><td class="green">Yes</td><td class="green">Yes</td></tr>
+  <tr><td>Services, Hours, WhatsApp, Intake, Analytics, Map</td><td class="gray">—</td><td class="green">Yes</td><td class="green">Yes</td></tr>
+  <tr><td>Reviews, Email, Verified Badge, Priority, Featured</td><td class="gray">—</td><td class="gray">—</td><td class="green">Yes</td></tr>
+</table>
+
+<!-- PAGE 3: SYSTEM OVERVIEW -->
+<div class="page-break"></div>
+<h2>2. System Overview</h2>
+<h3>System Context — Who Uses It</h3>
+<pre>
+                        EXTERNAL ACTORS
+    ┌───────────┬────────────┬────────────┬────────────┐
+    │  Family   │  Mortuary  │    SMS     │   Search   │
+    │ (Browser) │   Owner    │  Gateway   │   Engine   │
+    │           │ (Browser)  │ (Africa's  │  (Google)  │
+    │           │            │  Talking)  │            │
+    └─────┬─────┴─────┬──────┴─────┬──────┴─────┬──────┘
+          │           │            │            │
+          ▼           ▼            ▼            ▼
+    ┌──────────────────────────────────────────────────┐
+    │       WESTERN CAPE MORTUARY FINDER                │
+    │       Next.js 16 Application on Vercel            │
+    └────────┬────────────┬────────────┬───────────────┘
+             │            │            │
+             ▼            ▼            ▼
+      ┌──────────┐  ┌──────────┐  ┌──────────────┐
+      │ Supabase │  │  Resend  │  │OpenStreetMap │
+      │ Database │  │  Email   │  │  Map Tiles   │
+      │ + Auth   │  │ Service  │  │   (Free)     │
+      └──────────┘  └──────────┘  └──────────────┘
+</pre>
+<p><strong>Key insight:</strong> A single Next.js deployment connects to three fully managed services — zero servers to maintain.</p>
+
+<h3>Actors</h3>
+<table>
+  <tr><th>Actor</th><th>What They Do</th><th>Access Channel</th></tr>
+  <tr><td><strong>Family</strong></td><td>Search mortuaries, view availability, submit intake forms, leave reviews</td><td>Web browser or SMS</td></tr>
+  <tr><td><strong>Mortuary Owner</strong></td><td>Register, manage listing, update availability, view submissions</td><td>Web browser (authenticated)</td></tr>
+  <tr><td><strong>SMS Gateway</strong></td><td>Relays SMS queries from basic phone users</td><td>HTTP GET to /api/v1/sms</td></tr>
+  <tr><td><strong>Search Engine</strong></td><td>Indexes public pages for Google/Bing</td><td>HTTP GET (sitemap.xml)</td></tr>
+  <tr><td><strong>Platform Admin</strong></td><td>Approves listings, manages tiers</td><td>Supabase Dashboard</td></tr>
+</table>
+
+<!-- PAGE 4: TECH STACK -->
+<div class="page-break"></div>
+<h2>3. Technology Stack</h2>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+  <div>
+    <h3>Frontend</h3>
+    <table>
+      <tr><th>Tech</th><th>Ver</th><th>Purpose</th></tr>
+      <tr><td>Next.js</td><td>16.2</td><td>Full-stack React framework</td></tr>
+      <tr><td>React</td><td>19.2</td><td>UI component library</td></tr>
+      <tr><td>TypeScript</td><td>5.x</td><td>Type-safe JavaScript</td></tr>
+      <tr><td>Tailwind CSS</td><td>4.x</td><td>Utility-first styling</td></tr>
+      <tr><td>shadcn/ui</td><td>latest</td><td>Accessible UI components</td></tr>
+      <tr><td>Leaflet</td><td>1.9</td><td>Interactive maps</td></tr>
+      <tr><td>Lucide React</td><td>1.7</td><td>Icon library</td></tr>
+    </table>
+  </div>
+  <div>
+    <h3>Backend & Infrastructure</h3>
+    <table>
+      <tr><th>Tech</th><th>Ver</th><th>Purpose</th></tr>
+      <tr><td>Supabase</td><td>2.101</td><td>Database + Auth + RLS</td></tr>
+      <tr><td>PostgreSQL</td><td>managed</td><td>Relational database</td></tr>
+      <tr><td>Zod</td><td>4.3</td><td>Schema validation</td></tr>
+      <tr><td>Resend</td><td>6.10</td><td>Transactional email</td></tr>
+      <tr><td>Vercel</td><td>—</td><td>Hosting + CI/CD + Edge</td></tr>
+      <tr><td>Vitest</td><td>4.1</td><td>Test runner</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3>Key Technology Decisions</h3>
+<table>
+  <tr><th>Decision</th><th>Rationale</th></tr>
+  <tr><td><strong>Supabase over custom backend</strong></td><td>Built-in auth, PostgreSQL with RLS — replaces 3 separate services</td></tr>
+  <tr><td><strong>Leaflet over Google Maps</strong></td><td>Free, open-source, no API key costs for a directory use case</td></tr>
+  <tr><td><strong>Next.js App Router</strong></td><td>Server components for SEO, API routes in one deployment</td></tr>
+  <tr><td><strong>Resend over SendGrid</strong></td><td>Developer-friendly API, simple integration, pay-per-email</td></tr>
+</table>
+
+<!-- PAGE 5: APPLICATION ARCHITECTURE -->
+<div class="page-break"></div>
+<h2>4. Application Architecture</h2>
+<p>The application follows a <strong>monolithic full-stack architecture</strong> — a single Next.js deployment handles both the frontend UI and backend API routes.</p>
+
+<h3>Container Diagram (C4 Level 2)</h3>
+<pre>
+┌─────────────────────────────────────────────────────────┐
+│                  VERCEL EDGE NETWORK                     │
+│                                                          │
+│  ┌──────────────────────┐  ┌──────────────────────────┐  │
+│  │  React Frontend      │  │  API Route Handlers      │  │
+│  │  (App Router)        │  │  /api/v1/*               │  │
+│  │                      │  │                          │  │
+│  │  • Server Components │  │  • GET  /cities          │  │
+│  │  • Client Components │  │  • GET  /mortuaries      │  │
+│  │  • Static Pages      │  │  • POST /intake          │  │
+│  │                      │  │  • POST /reviews         │  │
+│  │                      │  │  • GET  /sms             │  │
+│  └──────────┬───────────┘  └──────────┬───────────────┘  │
+└─────────────┼──────────────────────────┼─────────────────┘
+              │                          │
+     ┌────────┴────────┬────────────────┴──────┐
+     ▼                 ▼                        ▼
+┌──────────┐    ┌──────────┐          ┌──────────────┐
+│ Supabase │    │  Resend  │          │OpenStreetMap │
+│ Cloud    │    │  (Email) │          │  Tile Server │
+│ DB+Auth  │    │          │          │              │
+└──────────┘    └──────────┘          └──────────────┘
+</pre>
+
+<h3>Rendering Strategy</h3>
+<table>
+  <tr><th>Page</th><th>Route</th><th>Rendering</th><th>Reason</th></tr>
+  <tr><td>Home</td><td>/</td><td>Server</td><td>SEO, live city stats</td></tr>
+  <tr><td>City Listing</td><td>/mortuaries/[city]</td><td>Server</td><td>SEO, dynamic data</td></tr>
+  <tr><td>Mortuary Detail</td><td>/mortuaries/[city]/[slug]</td><td>Server</td><td>SEO, metadata</td></tr>
+  <tr><td>Intake Form</td><td>.../[slug]/intake</td><td>Server → Client</td><td>6-step interactive wizard</td></tr>
+  <tr><td>Pricing</td><td>/pricing</td><td>Client</td><td>Uses language hook</td></tr>
+  <tr><td>Admin pages</td><td>/admin/*</td><td>Client</td><td>Auth + interactivity</td></tr>
+  <tr><td>Legal pages</td><td>/privacy, /terms</td><td>Server</td><td>Static content</td></tr>
+</table>
+
+<!-- PAGE 6: DATABASE DESIGN -->
+<div class="page-break"></div>
+<h2>5. Database Design</h2>
+<p>6 tables &bull; 14 indexes &bull; 18 RLS policies &bull; 2 auto-update triggers</p>
+
+<h3>Entity-Relationship Diagram</h3>
+<pre>
+┌─────────────────┐           ┌─────────────────┐
+│   auth.users     │           │     cities       │
+├─────────────────┤           ├─────────────────┤
+│ id (UUID) PK     │           │ id (UUID) PK     │
+│ email            │           │ name             │
+│ password (hash)  │           │ slug (UNIQUE)    │
+└────────┬────────┘           │ province         │
+         │ owner_id            └────────┬────────┘
+         │                              │ city_id
+         ▼                              ▼
+┌──────────────────────────────────────────────────┐
+│               mortuaries (Central Entity)         │
+├──────────────────────────────────────────────────┤
+│ id, owner_id FK, name, slug UNIQUE               │
+│ address, city_id FK, phone, whatsapp, email      │
+│ latitude, longitude                               │
+│ availability  (available|limited|full)    CHECK   │
+│ price_range   (budget|mid-range|premium) CHECK   │
+│ subscription_tier (free|standard|premium) CHECK  │
+│ is_featured, verified_partner                     │
+│ is_active, is_approved, view_count               │
+│ created_at, updated_at (auto-trigger)            │
+└───┬──────────────┬──────────────┬────────────────┘
+    │ 1:N          │ 1:N          │ 1:N
+    ▼              ▼              ▼
+┌────────────┐ ┌────────────┐ ┌────────────────────┐
+│ mortuary_  │ │ mortuary_  │ │     reviews        │
+│ services   │ │ hours      │ ├────────────────────┤
+├────────────┤ ├────────────┤ │ id, mortuary_id FK │
+│ id, mort FK│ │ id, mort FK│ │ rating (1-5)       │
+│ service_   │ │ day (0-6)  │ │ comment            │
+│ name       │ │ open/close │ │ is_approved        │
+│            │ │ is_closed  │ │ created_at         │
+└────────────┘ └────────────┘ └────────────────────┘
+                                      │ 1:N
+                     ┌────────────────┘
+                     ▼
+              ┌─────────────────────────┐
+              │   intake_submissions     │
+              ├─────────────────────────┤
+              │ id, mortuary_id FK       │
+              │ status (new|in-progress| │
+              │   completed|cancelled)   │
+              │ 27 fields: deceased,     │
+              │ NOK, doctor, preferences,│
+              │ insurance, notes         │
+              │ created_at, updated_at   │
+              └─────────────────────────┘
+</pre>
+
+<h3>Table Summary</h3>
+<table>
+  <tr><th>Table</th><th>Rows (Est.)</th><th>Purpose</th><th>RLS</th></tr>
+  <tr><td><strong>cities</strong></td><td>10 (fixed)</td><td>Western Cape city reference</td><td>Public read</td></tr>
+  <tr><td><strong>mortuaries</strong></td><td>10-100</td><td>Core business entity</td><td>Public read (active+approved), owner CRUD</td></tr>
+  <tr><td><strong>mortuary_services</strong></td><td>50-700</td><td>Services per mortuary</td><td>Public read (active parent), owner manage</td></tr>
+  <tr><td><strong>mortuary_hours</strong></td><td>70-700</td><td>Operating hours (7 days)</td><td>Public read (active parent), owner manage</td></tr>
+  <tr><td><strong>intake_submissions</strong></td><td>Growing</td><td>Digital intake forms</td><td>Public insert, owner read/update</td></tr>
+  <tr><td><strong>reviews</strong></td><td>Growing</td><td>Star ratings + comments</td><td>Public insert + read (approved), owner manage</td></tr>
+</table>
+
+<!-- PAGE 7: SECURITY -->
+<div class="page-break"></div>
+<h2>6. Security Architecture</h2>
+<p>Enterprise-grade, 5-layer defense-in-depth model</p>
+
+<div class="layer-box"><strong>Layer 1: NETWORK</strong> (Vercel Edge) — HTTPS (TLS 1.3), DDoS protection, edge caching</div>
+<div class="layer-box"><strong>Layer 2: APPLICATION</strong> (Next.js) — Zod validation, CSRF (SameSite), XSS (React auto-escaping), service role server-only</div>
+<div class="layer-box"><strong>Layer 3: AUTHENTICATION</strong> (Supabase Auth) — JWT sessions, secure cookie storage, bcrypt password hashing</div>
+<div class="layer-box"><strong>Layer 4: AUTHORIZATION</strong> (PostgreSQL RLS) — Row Level Security on all 6 tables, auth.uid() checks, deny-by-default</div>
+<div class="layer-box"><strong>Layer 5: DATA</strong> (PostgreSQL) — CHECK constraints, NOT NULL, UNIQUE on slugs, FK cascading deletes</div>
+
+<h3>Authentication Flow</h3>
+<pre>
+Owner              Next.js Client       Supabase Auth       PostgreSQL (RLS)
+  │                     │                     │                     │
+  │ Email + Password    │                     │                     │
+  │────────────────────>│                     │                     │
+  │                     │ signInWithPassword()│                     │
+  │                     │────────────────────>│                     │
+  │                     │   JWT + Session     │ Validate            │
+  │                     │<────────────────────│ credentials         │
+  │                     │                     │                     │
+  │ Load dashboard      │ Query with JWT      │                     │
+  │────────────────────>│────────────────────────────────────────>│
+  │                     │                     │  RLS: auth.uid()   │
+  │                     │   Filtered data     │  = owner_id        │
+  │<────────────────────│<────────────────────────────────────────│
+</pre>
+
+<h3>Threat Mitigations</h3>
+<table>
+  <tr><th>Threat</th><th>Mitigation</th></tr>
+  <tr><td>SQL Injection</td><td>Supabase SDK parameterized queries</td></tr>
+  <tr><td>XSS</td><td>React auto-escapes all JSX output</td></tr>
+  <tr><td>Data Exposure</td><td>RLS ensures owners only see own data</td></tr>
+  <tr><td>Service Role Leak</td><td>Key only used server-side (never NEXT_PUBLIC_)</td></tr>
+  <tr><td>POPIA</td><td>SA privacy law aligned; Privacy Policy at /privacy</td></tr>
+</table>
+
+<!-- PAGE 8: API + SMS -->
+<div class="page-break"></div>
+<h2>7. API Endpoints & SMS Integration</h2>
+
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Response</th></tr>
+  <tr><td style="color:#16a34a;font-weight:700;">GET</td><td>/api/v1/cities</td><td>List all 10 cities</td><td>City[]</td></tr>
+  <tr><td style="color:#16a34a;font-weight:700;">GET</td><td>/api/v1/mortuaries?city={slug}</td><td>Browse mortuaries by city</td><td>Mortuary[]</td></tr>
+  <tr><td style="color:#16a34a;font-weight:700;">GET</td><td>/api/v1/mortuaries/{slug}</td><td>Mortuary detail + services</td><td>MortuaryWithDetails</td></tr>
+  <tr><td style="color:#2563eb;font-weight:700;">POST</td><td>/api/v1/mortuaries/{slug}/track-view</td><td>Increment view count</td><td>{ success }</td></tr>
+  <tr><td style="color:#2563eb;font-weight:700;">POST</td><td>/api/v1/mortuaries/{slug}/track-contact</td><td>Increment contact clicks</td><td>{ success }</td></tr>
+  <tr><td style="color:#2563eb;font-weight:700;">POST</td><td>/api/v1/intake</td><td>Submit intake form (27 fields)</td><td>{ id, status }</td></tr>
+  <tr><td style="color:#2563eb;font-weight:700;">POST</td><td>/api/v1/reviews</td><td>Submit rating + review</td><td>{ id }</td></tr>
+  <tr><td style="color:#16a34a;font-weight:700;">GET</td><td>/api/v1/sms?city={name}</td><td>SMS/USSD gateway (plain text)</td><td>text/plain</td></tr>
+</table>
+
+<h3>SMS/USSD — Bridging the Digital Divide</h3>
+<pre>
+User (Phone)     SMS Gateway          Next.js /api/v1/sms     Supabase
+     │                │                       │                    │
+     │ SMS "Cape Town"│                       │                    │
+     │───────────────>│                       │                    │
+     │                │ GET /sms?city=cape+town                    │
+     │                │──────────────────────>│                    │
+     │                │                       │ Query mortuaries   │
+     │                │                       │───────────────────>│
+     │                │                       │     Results        │
+     │                │   Plain text list     │<───────────────────│
+     │                │<──────────────────────│                    │
+     │ SMS response   │                       │                    │
+     │<───────────────│                       │                    │
+</pre>
+
+<!-- PAGE 9: DEPLOYMENT -->
+<div class="page-break"></div>
+<h2>8. Deployment & Scalability</h2>
+
+<h3>CI/CD Pipeline</h3>
+<pre>
+Developer → git push → GitHub → Vercel Build → ✅ Deploy
+                                    │
+                           ├── Preview  (PR branches)  → *.vercel.app
+                           └── Production (main branch) → western-cape-mortuary-finder.vercel.app
+</pre>
+
+<h3>Environment Variables</h3>
+<table>
+  <tr><th>Variable</th><th>Exposure</th><th>Purpose</th></tr>
+  <tr><td>NEXT_PUBLIC_SUPABASE_URL</td><td style="color:#16a34a;">Public</td><td>Supabase project URL</td></tr>
+  <tr><td>NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td style="color:#16a34a;">Public</td><td>Anonymous key (RLS-restricted)</td></tr>
+  <tr><td>SUPABASE_SERVICE_ROLE_KEY</td><td style="color:#dc2626;font-weight:700;">Server only</td><td>Bypasses RLS for admin ops</td></tr>
+  <tr><td>RESEND_API_KEY</td><td style="color:#dc2626;font-weight:700;">Server only</td><td>Email sending authorization</td></tr>
+</table>
+
+<h3>Scalability Path</h3>
+<table>
+  <tr><th>Dimension</th><th>Current</th><th>Future</th></tr>
+  <tr><td>Compute</td><td>Vercel serverless (auto-scales)</td><td>No action needed</td></tr>
+  <tr><td>Database</td><td>Supabase free/pro</td><td>Read replicas</td></tr>
+  <tr><td>Cities</td><td>10 (Western Cape)</td><td>Add to DB (Gauteng, KZN)</td></tr>
+  <tr><td>Real-time</td><td>Not yet</td><td>Supabase Realtime for live availability</td></tr>
+  <tr><td>Payments</td><td>Manual tier upgrade</td><td>Yoco / PayFast integration</td></tr>
+</table>
+
+<h3>Estimated Load</h3>
+<table>
+  <tr><th>Metric</th><th>Estimate</th></tr>
+  <tr><td>Monthly active users</td><td>500 – 5,000</td></tr>
+  <tr><td>Page views/month</td><td>5,000 – 50,000</td></tr>
+  <tr><td>Intake submissions/month</td><td>50 – 500</td></tr>
+  <tr><td>Database size</td><td>&lt; 1 GB</td></tr>
+</table>
+
+<h3>Internationalization</h3>
+<table>
+  <tr><th>Language</th><th>Code</th><th>Status</th><th>Keys</th></tr>
+  <tr><td>English</td><td>en</td><td class="green">Complete</td><td>363</td></tr>
+  <tr><td>Afrikaans</td><td>af</td><td class="green">Complete</td><td>363</td></tr>
+  <tr><td>isiXhosa</td><td>xh</td><td class="green">Complete</td><td>363</td></tr>
+</table>
+
+<!-- PAGE 10: GLOSSARY -->
+<div class="page-break"></div>
+<h2>9. Glossary</h2>
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td><strong>Intake Form</strong></td><td>Digital pre-registration form for deceased person details, submitted by next-of-kin</td></tr>
+  <tr><td><strong>NOK</strong></td><td>Next of Kin — the family member managing funeral arrangements</td></tr>
+  <tr><td><strong>DHA-1663</strong></td><td>South African Death Notification Form — the key document in the death registration process</td></tr>
+  <tr><td><strong>RLS</strong></td><td>Row Level Security — PostgreSQL feature restricting data access per row based on policies</td></tr>
+  <tr><td><strong>SAPS</strong></td><td>South African Police Service — case number required for unnatural deaths</td></tr>
+  <tr><td><strong>POPIA</strong></td><td>Protection of Personal Information Act — South Africa's data privacy legislation</td></tr>
+  <tr><td><strong>USSD</strong></td><td>Unstructured Supplementary Service Data — mobile protocol for feature-phone access</td></tr>
+  <tr><td><strong>Service Role</strong></td><td>Supabase admin key that bypasses RLS — used server-side only</td></tr>
+  <tr><td><strong>Slug</strong></td><td>URL-friendly identifier (e.g., cape-town, sunrise-mortuary)</td></tr>
+  <tr><td><strong>Subscription Tier</strong></td><td>Feature access level for mortuary owners (Free / Standard / Premium)</td></tr>
+  <tr><td><strong>Verified Partner</strong></td><td>Badge indicating a vetted, trusted mortuary operator (Premium tier only)</td></tr>
+</table>
+
+<div style="text-align:center; margin-top:40px; padding:20px; background:#1B4965; color:white; border-radius:8px;">
+  <p style="font-size:14px; font-weight:700; margin-bottom:4px;">Western Cape Mortuary Finder</p>
+  <p style="font-size:10px; opacity:0.8;">Version 1.0 &bull; April 2026 &bull; 10 pages</p>
+  <p style="font-size:10px; opacity:0.8; margin-top:8px;">
+    Live: western-cape-mortuary-finder.vercel.app &bull; GitHub: github.com/Sabelo-Duma/western-cape-mortuary-finder
+  </p>
+</div>
+
+</body>
+</html>

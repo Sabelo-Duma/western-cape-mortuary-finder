@@ -193,7 +193,7 @@ export default function AdminDashboardPage() {
   const inProgressCount = submissions.filter((s) => s.status === "in-progress").length;
 
   return (
-    <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full">
+    <main className="flex-1 px-4 py-6 max-w-4xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -229,60 +229,6 @@ export default function AdminDashboardPage() {
           <p className="text-xs text-gray-500">{t("admin.submissions")}</p>
         </div>
       </div>
-
-      {/* Current Plan */}
-      <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-              mortuary.subscription_tier === "premium" ? "bg-amber-100" :
-              mortuary.subscription_tier === "standard" ? "bg-blue-100" : "bg-gray-100"
-            }`}>
-              {mortuary.subscription_tier === "premium" ? (
-                <Crown className="h-5 w-5 text-amber-600" />
-              ) : mortuary.subscription_tier === "standard" ? (
-                <Star className="h-5 w-5 text-[#1B4965]" />
-              ) : (
-                <Zap className="h-5 w-5 text-gray-500" />
-              )}
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} {t("admin.currentPlan")}</p>
-              <p className="text-xs text-gray-500">
-                {mortuary.subscription_tier === "free" ? t("admin.freePlan") :
-                 mortuary.subscription_tier === "standard" ? t("admin.standardPlan") :
-                 t("admin.premiumPlan")}
-              </p>
-            </div>
-          </div>
-          {mortuary.subscription_tier !== "premium" && (
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-white bg-[#1B4965] hover:bg-[#143A50] px-4 py-2 rounded-lg transition-colors"
-            >
-              {t("admin.upgrade")}
-            </Link>
-          )}
-        </div>
-
-        {/* Feature checklist */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
-          <PlanFeature label={t("plan.listed")} active={true} />
-          <PlanFeature label={t("plan.nameAddressPhone")} active={true} />
-          <PlanFeature label={t("plan.availability")} active={true} />
-          <PlanFeature label={t("plan.servicesHours")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.whatsapp")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.intakeForms")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.priceRange")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.analytics")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.mapPin")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.reviews")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.emailNotifications")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.verifiedBadge")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.priorityPlacement")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.featuredHomepage")} active={mortuary.subscription_tier === "premium"} />
-        </div>
-      </section>
 
       {/* Availability Update */}
       <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
@@ -508,6 +454,60 @@ export default function AdminDashboardPage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* Current Plan */}
+      <section className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+              mortuary.subscription_tier === "premium" ? "bg-amber-100" :
+              mortuary.subscription_tier === "standard" ? "bg-blue-100" : "bg-gray-100"
+            }`}>
+              {mortuary.subscription_tier === "premium" ? (
+                <Crown className="h-5 w-5 text-amber-600" />
+              ) : mortuary.subscription_tier === "standard" ? (
+                <Star className="h-5 w-5 text-[#1B4965]" />
+              ) : (
+                <Zap className="h-5 w-5 text-gray-500" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 capitalize">{mortuary.subscription_tier} {t("admin.currentPlan")}</p>
+              <p className="text-xs text-gray-500">
+                {mortuary.subscription_tier === "free" ? t("admin.freePlan") :
+                 mortuary.subscription_tier === "standard" ? t("admin.standardPlan") :
+                 t("admin.premiumPlan")}
+              </p>
+            </div>
+          </div>
+          {mortuary.subscription_tier !== "premium" && (
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-white bg-[#1B4965] hover:bg-[#143A50] px-4 py-2 rounded-lg transition-colors"
+            >
+              {t("admin.upgrade")}
+            </Link>
+          )}
+        </div>
+
+        {/* Feature checklist — 3 columns on desktop, 1 on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1.5 text-sm">
+          <PlanFeature label={t("plan.listed")} active={true} />
+          <PlanFeature label={t("plan.nameAddressPhone")} active={true} />
+          <PlanFeature label={t("plan.availability")} active={true} />
+          <PlanFeature label={t("plan.servicesHours")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.whatsapp")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.intakeForms")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.priceRange")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.analytics")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.mapPin")} active={mortuary.subscription_tier !== "free"} />
+          <PlanFeature label={t("plan.reviews")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.emailNotifications")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.verifiedBadge")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.priorityPlacement")} active={mortuary.subscription_tier === "premium"} />
+          <PlanFeature label={t("plan.featuredHomepage")} active={mortuary.subscription_tier === "premium"} />
+        </div>
       </section>
 
       <Separator className="my-6" />
