@@ -193,7 +193,7 @@ export default function AdminDashboardPage() {
   const inProgressCount = submissions.filter((s) => s.status === "in-progress").length;
 
   return (
-    <main className="flex-1 px-4 py-6 max-w-4xl mx-auto w-full">
+    <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -491,23 +491,35 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* Feature checklist — 3 columns on desktop, 1 on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-1.5 text-sm">
-          <PlanFeature label={t("plan.listed")} active={true} />
-          <PlanFeature label={t("plan.nameAddressPhone")} active={true} />
-          <PlanFeature label={t("plan.availability")} active={true} />
-          <PlanFeature label={t("plan.servicesHours")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.whatsapp")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.intakeForms")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.priceRange")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.analytics")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.mapPin")} active={mortuary.subscription_tier !== "free"} />
-          <PlanFeature label={t("plan.reviews")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.emailNotifications")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.verifiedBadge")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.priorityPlacement")} active={mortuary.subscription_tier === "premium"} />
-          <PlanFeature label={t("plan.featuredHomepage")} active={mortuary.subscription_tier === "premium"} />
-        </div>
+        {/* Feature checklist — active features grouped in left column on desktop */}
+        {(() => {
+          const tier = mortuary.subscription_tier;
+          const features = [
+            { label: t("plan.listed"), active: true },
+            { label: t("plan.nameAddressPhone"), active: true },
+            { label: t("plan.availability"), active: true },
+            { label: t("plan.servicesHours"), active: tier !== "free" },
+            { label: t("plan.whatsapp"), active: tier !== "free" },
+            { label: t("plan.intakeForms"), active: tier !== "free" },
+            { label: t("plan.priceRange"), active: tier !== "free" },
+            { label: t("plan.analytics"), active: tier !== "free" },
+            { label: t("plan.mapPin"), active: tier !== "free" },
+            { label: t("plan.reviews"), active: tier === "premium" },
+            { label: t("plan.emailNotifications"), active: tier === "premium" },
+            { label: t("plan.verifiedBadge"), active: tier === "premium" },
+            { label: t("plan.priorityPlacement"), active: tier === "premium" },
+            { label: t("plan.featuredHomepage"), active: tier === "premium" },
+          ];
+          // Sort active first so they fill the left column on desktop (column-flow)
+          const sorted = [...features].sort((a, b) => Number(b.active) - Number(a.active));
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-flow-col sm:grid-rows-7 gap-x-4 gap-y-1.5 text-sm">
+              {sorted.map((f) => (
+                <PlanFeature key={f.label} label={f.label} active={f.active} />
+              ))}
+            </div>
+          );
+        })()}
       </section>
 
       <Separator className="my-6" />
