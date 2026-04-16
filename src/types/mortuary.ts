@@ -51,6 +51,22 @@ export interface MortuaryHours {
   is_closed: boolean;
 }
 
+export type SubscriptionStatus = "pending" | "active" | "cancelled" | "failed";
+
+export interface Subscription {
+  id: string;
+  mortuary_id: string;
+  payfast_token: string | null;
+  tier: "standard" | "premium";
+  status: SubscriptionStatus;
+  amount_cents: number;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  cancelled_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface MortuaryWithDetails extends Mortuary {
   city: City;
   services: MortuaryService[];

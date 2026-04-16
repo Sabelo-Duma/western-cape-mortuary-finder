@@ -419,7 +419,7 @@ const translations = {
     "pricing.faq5Q": "Can I cancel anytime?",
     "pricing.faq5A": "Yes. There are no contracts or lock-in periods. Cancel anytime and your listing reverts to the Free tier.",
     "pricing.faq6Q": "How do I pay?",
-    "pricing.faq6A": "Contact us to set up your subscription. We accept EFT and card payments.",
+    "pricing.faq6A": "Pay securely via PayFast. We accept credit card, debit card, instant EFT, and more. Click 'Upgrade' on any plan to get started.",
 
     // Pricing features
     "pricing.feat.listed": "Listed on the platform",
@@ -436,6 +436,20 @@ const translations = {
     "pricing.feat.verified": "Verified Partner badge",
     "pricing.feat.priority": "Priority placement",
     "pricing.feat.featured": "Featured on homepage",
+
+    // Billing
+    "billing.upgrading": "Processing...",
+    "billing.success.title": "Payment Successful!",
+    "billing.success.message": "Your payment has been received. Your plan will update shortly as we confirm the transaction.",
+    "billing.cancel.title": "Payment Cancelled",
+    "billing.cancel.message": "Your payment was cancelled. No charges were made. You can try again anytime from your dashboard.",
+    "billing.backToDashboard": "Back to Dashboard",
+    "billing.nextBilling": "Next billing date",
+    "billing.cancelSubscription": "Cancel Subscription",
+    "billing.cancelling": "Cancelling...",
+    "billing.cancelled": "Subscription cancelled successfully.",
+    "billing.planEnds": "Your plan reverts to Free on",
+    "billing.confirmCancelDesc": "Are you sure you want to cancel your subscription? Your plan will revert to Free and you will lose access to paid features.",
   },
 
   af: {
@@ -848,7 +862,7 @@ const translations = {
     "pricing.faq5Q": "Kan ek enige tyd kanselleer?",
     "pricing.faq5A": "Ja. Daar is geen kontrakte of vasmaakperiodes nie. Kanselleer enige tyd en jou lys keer terug na die Gratis vlak.",
     "pricing.faq6Q": "Hoe betaal ek?",
-    "pricing.faq6A": "Kontak ons om jou intekening op te stel. Ons aanvaar EFT en kaartbetalings.",
+    "pricing.faq6A": "Betaal veilig via PayFast. Ons aanvaar kredietkaart, debietkaart, kitsoordrag (EFT), en meer. Klik 'Opgradeer' op enige plan om te begin.",
     "pricing.feat.listed": "Gelys op die platform",
     "pricing.feat.nameAddressPhone": "Naam, adres, telefoonnommer",
     "pricing.feat.availability": "Werk beskikbaarheidstatus op",
@@ -863,6 +877,20 @@ const translations = {
     "pricing.feat.verified": "Geverifieerde Vennoot-kenteken",
     "pricing.feat.priority": "Prioriteitsplasing",
     "pricing.feat.featured": "Uitgestald op tuisblad",
+
+    // Billing
+    "billing.upgrading": "Verwerk...",
+    "billing.success.title": "Betaling Suksesvol!",
+    "billing.success.message": "Jou betaling is ontvang. Jou plan sal binnekort opgedateer word soos ons die transaksie bevestig.",
+    "billing.cancel.title": "Betaling Gekanselleer",
+    "billing.cancel.message": "Jou betaling is gekanselleer. Geen koste is gehef nie. Jy kan enige tyd weer probeer vanaf jou kontroleskerm.",
+    "billing.backToDashboard": "Terug na Kontroleskerm",
+    "billing.nextBilling": "Volgende faktuurdatum",
+    "billing.cancelSubscription": "Kanselleer Intekening",
+    "billing.cancelling": "Kanselleer...",
+    "billing.cancelled": "Intekening suksesvol gekanselleer.",
+    "billing.planEnds": "Jou plan keer terug na Gratis op",
+    "billing.confirmCancelDesc": "Is jy seker jy wil jou intekening kanselleer? Jou plan sal terugkeer na Gratis en jy sal toegang tot betaalde kenmerke verloor.",
   },
 
   xh: {
@@ -1275,7 +1303,7 @@ const translations = {
     "pricing.faq5Q": "Ndingarhoxisa nanini na?",
     "pricing.faq5A": "Ewe. Akukho zikhontrakthi okanye amaxesha okuvaleleka. Rhoxisa nanini na kwaye uluhlu lwakho lubuyela kwinqanaba eliMahla.",
     "pricing.faq6Q": "Ndihlawula njani?",
-    "pricing.faq6A": "Qhagamshelana nathi ukuseta ubhaliso lwakho. Samkela i-EFT kunye nokuhlawula ngekhadi.",
+    "pricing.faq6A": "Hlawula ngokukhuselekileyo nge-PayFast. Samkela ikhadi letyala, ikhadi ledebhithi, i-EFT ekhawulezayo, nokunye. Cofa 'Nyusa' kuwo nawuphi na uhlelo ukuze uqalise.",
     "pricing.feat.listed": "Idwelisiwe kwiplatform",
     "pricing.feat.nameAddressPhone": "Igama, idilesi, inombolo yefowuni",
     "pricing.feat.availability": "Hlaziya isimo sokufumaneka",
@@ -1290,6 +1318,20 @@ const translations = {
     "pricing.feat.verified": "Ibheji Yeqabane Eliqinisekisiweyo",
     "pricing.feat.priority": "Indawo yokuqala",
     "pricing.feat.featured": "Ibonisiwe kwiphepha lokuqala",
+
+    // Billing
+    "billing.upgrading": "Iyaqhubeka...",
+    "billing.success.title": "Intlawulo Iphumelele!",
+    "billing.success.message": "Intlawulo yakho yamkelwe. Uhlelo lwakho luya kuhlaziywa kungekudala njengoko siqinisekisa unaniselwano.",
+    "billing.cancel.title": "Intlawulo Irhoxisiwe",
+    "billing.cancel.message": "Intlawulo yakho irhoxisiwe. Akukho ntlawulo yenziweyo. Ungazama kwakhona nangaliphi na ixesha ukusuka kwidashbhodi yakho.",
+    "billing.backToDashboard": "Buyela kwiDashbhodi",
+    "billing.nextBilling": "Umhla wokulandelayo wokuhlawula",
+    "billing.cancelSubscription": "Rhoxisa Ubhaliso",
+    "billing.cancelling": "Iyarhoxisa...",
+    "billing.cancelled": "Ubhaliso lurhoxiswe ngempumelelo.",
+    "billing.planEnds": "Uhlelo lwakho lubuyela kwiFree ngo",
+    "billing.confirmCancelDesc": "Uqinisekile ufuna ukurhoxisa ubhaliso lwakho? Uhlelo lwakho luya kubuyela kwiFree kwaye uya kuphulukana nokufikelela kwiimpawu ezihlawulelweyo.",
   },
 } as const;
 

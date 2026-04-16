@@ -1,8 +1,11 @@
 "use client";
 
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Check, X, Star, Zap, Crown, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, X, Star, Zap, Crown, ArrowLeft, Loader2 } from "lucide-react";
 import { useLanguage, type TranslationKey } from "@/lib/i18n";
+import { createClient } from "@/lib/supabase/client";
 
 const FEATURE_KEYS: TranslationKey[] = [
   "pricing.feat.listed",
@@ -34,6 +37,93 @@ const FAQ_KEYS: [TranslationKey, TranslationKey][] = [
   ["pricing.faq6Q", "pricing.faq6A"],
 ];
 
+function CheckoutButton({
+  tier,
+  className,
+  label,
+}: {
+  tier: "standard" | "premium";
+  className: string;
+  label: string;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+  const { t } = useLanguage();
+
+  const handleCheckout = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    // Check if user is logged in
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push("/admin/register");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/v1/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        setLoading(false);
+        return;
+      }
+
+      // Create and submit hidden form to PayFast
+      const form = formRef.current;
+      if (!form) return;
+
+      form.action = data.url;
+      form.innerHTML = "";
+      for (const [key, value] of Object.entries(data.fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value as string;
+        form.appendChild(input);
+      }
+      form.submit();
+    } catch {
+      setError("Connection error. Please try again.");
+      setLoading(false);
+    }
+  }, [tier, router]);
+
+  return (
+    <div>
+      <form ref={formRef} method="POST" className="hidden" />
+      <button
+        onClick={handleCheckout}
+        disabled={loading}
+        className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors ${className} disabled:opacity-60`}
+      >
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            {t("billing.upgrading")}
+          </span>
+        ) : (
+          label
+        )}
+      </button>
+      {error && (
+        <p className="text-xs text-red-600 mt-2 text-center">{error}</p>
+      )}
+    </div>
+  );
+}
+
 export default function PricingPage() {
   const { t } = useLanguage();
 
@@ -60,6 +150,7 @@ export default function PricingPage() {
       buttonKey: "pricing.upgradeStandard" as TranslationKey,
       popular: true,
       included: STANDARD_INCLUDED,
+      checkoutTier: "standard" as const,
     },
     {
       nameKey: "pricing.premium" as TranslationKey,
@@ -71,6 +162,7 @@ export default function PricingPage() {
       buttonClass: "bg-amber-500 hover:bg-amber-600 text-white",
       buttonKey: "pricing.goPremium" as TranslationKey,
       included: PREMIUM_INCLUDED,
+      checkoutTier: "premium" as const,
     },
   ];
 
@@ -121,9 +213,17 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/admin/register" className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors ${tier.buttonClass}`}>
-                  {t(tier.buttonKey)}
-                </Link>
+                {tier.checkoutTier ? (
+                  <CheckoutButton
+                    tier={tier.checkoutTier}
+                    className={tier.buttonClass}
+                    label={t(tier.buttonKey)}
+                  />
+                ) : (
+                  <Link href="/admin/register" className={`block w-full text-center py-3 rounded-lg font-semibold text-sm transition-colors ${tier.buttonClass}`}>
+                    {t(tier.buttonKey)}
+                  </Link>
+                )}
               </div>
             );
           })}

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { type AvailabilityStatus } from "@/types/mortuary";
+import { type AvailabilityStatus, type Subscription } from "@/types/mortuary";
 import {
   Eye,
   Phone,
@@ -64,6 +64,8 @@ export default function AdminDashboardPage() {
   const [availability, setAvailability] = useState<AvailabilityStatus>("available");
   const [submissions, setSubmissions] = useState<IntakeSubmission[]>([]);
   const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasListing, setHasListing] = useState(true);
@@ -101,9 +103,20 @@ export default function AdminDashboardPage() {
         .eq("mortuary_id", data.id)
         .order("created_at", { ascending: false });
 
+      // Load active subscription
+      const { data: subData } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("mortuary_id", data.id)
+        .in("status", ["active", "cancelled"])
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
       setMortuary(data);
       setAvailability(data.availability);
       setSubmissions(subs || []);
+      setSubscription(subData);
       setLoading(false);
     };
 
@@ -169,6 +182,25 @@ export default function AdminDashboardPage() {
 
     setMortuary({ ...mortuary, is_active: newStatus });
     toast.success(newStatus ? "Listing is now visible" : "Listing is paused");
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!confirm(t("billing.confirmCancelDesc"))) return;
+    setCancelling(true);
+    try {
+      const res = await fetch("/api/v1/billing/cancel", { method: "POST" });
+      if (res.ok) {
+        toast.success(t("billing.cancelled"));
+        setSubscription((prev) => prev ? { ...prev, status: "cancelled", cancelled_at: new Date().toISOString() } : null);
+        setMortuary((prev) => prev ? { ...prev, subscription_tier: "free" } : null);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to cancel subscription");
+      }
+    } catch {
+      toast.error("Connection error. Please try again.");
+    }
+    setCancelling(false);
   };
 
   const handleLogout = async () => {
@@ -490,6 +522,29 @@ export default function AdminDashboardPage() {
             </Link>
           )}
         </div>
+
+        {/* Billing info */}
+        {subscription?.status === "active" && subscription.current_period_end && (
+          <div className="flex items-center justify-between mb-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-xs text-gray-600">
+              {t("billing.nextBilling")}: <span className="font-medium text-gray-900">{new Date(subscription.current_period_end).toLocaleDateString("en-ZA")}</span>
+            </p>
+            <button
+              onClick={handleCancelSubscription}
+              disabled={cancelling}
+              className="text-xs text-red-600 hover:text-red-700 font-medium disabled:opacity-50"
+            >
+              {cancelling ? t("billing.cancelling") : t("billing.cancelSubscription")}
+            </button>
+          </div>
+        )}
+        {subscription?.status === "cancelled" && subscription.current_period_end && (
+          <div className="mb-4 p-3 bg-amber-50 rounded-lg">
+            <p className="text-xs text-amber-700">
+              {t("billing.planEnds")}: <span className="font-medium">{new Date(subscription.current_period_end).toLocaleDateString("en-ZA")}</span>
+            </p>
+          </div>
+        )}
 
         {/* Feature checklist — active features grouped in left column on desktop */}
         {(() => {
