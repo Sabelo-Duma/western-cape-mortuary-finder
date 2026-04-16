@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createAuthClient } from "@/lib/supabase/server";
-import { cancelSubscription } from "@/lib/payfast";
 
 export async function POST() {
   try {
@@ -46,16 +45,8 @@ export async function POST() {
       );
     }
 
-    // Cancel via PayFast API
-    if (subscription.payfast_token) {
-      const cancelled = await cancelSubscription(subscription.payfast_token);
-      if (!cancelled) {
-        return NextResponse.json(
-          { error: "Failed to cancel subscription with PayFast. Please try again." },
-          { status: 502 }
-        );
-      }
-    }
+    // TODO: When CallPay provides recurring cancellation API, call it here
+    // For now, cancel locally — stops feature access immediately
 
     // Update local record
     await supabase

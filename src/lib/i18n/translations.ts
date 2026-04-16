@@ -419,7 +419,7 @@ const translations = {
     "pricing.faq5Q": "Can I cancel anytime?",
     "pricing.faq5A": "Yes. There are no contracts or lock-in periods. Cancel anytime and your listing reverts to the Free tier.",
     "pricing.faq6Q": "How do I pay?",
-    "pricing.faq6A": "Pay securely via PayFast. We accept credit card, debit card, instant EFT, and more. Click 'Upgrade' on any plan to get started.",
+    "pricing.faq6A": "Pay securely via our payment gateway. We accept credit card, debit card, instant EFT, and more. Click 'Upgrade' on any plan to get started.",
 
     // Pricing features
     "pricing.feat.listed": "Listed on the platform",
@@ -862,7 +862,7 @@ const translations = {
     "pricing.faq5Q": "Kan ek enige tyd kanselleer?",
     "pricing.faq5A": "Ja. Daar is geen kontrakte of vasmaakperiodes nie. Kanselleer enige tyd en jou lys keer terug na die Gratis vlak.",
     "pricing.faq6Q": "Hoe betaal ek?",
-    "pricing.faq6A": "Betaal veilig via PayFast. Ons aanvaar kredietkaart, debietkaart, kitsoordrag (EFT), en meer. Klik 'Opgradeer' op enige plan om te begin.",
+    "pricing.faq6A": "Betaal veilig via ons betaalportaal. Ons aanvaar kredietkaart, debietkaart, kitsoordrag (EFT), en meer. Klik 'Opgradeer' op enige plan om te begin.",
     "pricing.feat.listed": "Gelys op die platform",
     "pricing.feat.nameAddressPhone": "Naam, adres, telefoonnommer",
     "pricing.feat.availability": "Werk beskikbaarheidstatus op",
@@ -1303,7 +1303,7 @@ const translations = {
     "pricing.faq5Q": "Ndingarhoxisa nanini na?",
     "pricing.faq5A": "Ewe. Akukho zikhontrakthi okanye amaxesha okuvaleleka. Rhoxisa nanini na kwaye uluhlu lwakho lubuyela kwinqanaba eliMahla.",
     "pricing.faq6Q": "Ndihlawula njani?",
-    "pricing.faq6A": "Hlawula ngokukhuselekileyo nge-PayFast. Samkela ikhadi letyala, ikhadi ledebhithi, i-EFT ekhawulezayo, nokunye. Cofa 'Nyusa' kuwo nawuphi na uhlelo ukuze uqalise.",
+    "pricing.faq6A": "Hlawula ngokukhuselekileyo ngeportali yethu yokuhlawula. Samkela ikhadi letyala, ikhadi ledebhithi, i-EFT ekhawulezayo, nokunye. Cofa 'Nyusa' kuwo nawuphi na uhlelo ukuze uqalise.",
     "pricing.feat.listed": "Idwelisiwe kwiplatform",
     "pricing.feat.nameAddressPhone": "Igama, idilesi, inombolo yefowuni",
     "pricing.feat.availability": "Hlaziya isimo sokufumaneka",

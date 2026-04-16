@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as createAuthClient } from "@/lib/supabase/server";
-import { buildCheckoutData, TIER_PRICING } from "@/lib/payfast";
+import { createPaymentKey, TIER_PRICING } from "@/lib/callpay";
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +44,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Already on this tier or higher
     if (mortuary.subscription_tier === tier) {
       return NextResponse.json(
         { error: `Already on the ${tier} plan.` },
@@ -61,14 +60,14 @@ export async function POST(request: Request) {
     const pricing = TIER_PRICING[tier];
 
     // Upsert subscription row (handles upgrade from standard -> premium)
-    const { data: subscription, error: subError } = await supabase
+    const { error: subError } = await supabase
       .from("subscriptions")
       .upsert(
         {
           mortuary_id: mortuary.id,
           tier,
           status: "pending",
-          amount_cents: pricing.amountCents,
+          amount_cents: pricing.amount * 100,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "mortuary_id" }
@@ -84,19 +83,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build PayFast checkout data
+    // Create CallPay payment key
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const checkoutData = buildCheckoutData({
+    const { url } = await createPaymentKey({
       mortuaryId: mortuary.id,
       mortuaryName: mortuary.name,
-      ownerEmail: user.email ?? "",
       tier: tier as "standard" | "premium",
-      returnUrl: `${siteUrl}/admin/billing/success`,
+      successUrl: `${siteUrl}/admin/billing/success`,
+      errorUrl: `${siteUrl}/admin/billing/cancel`,
       cancelUrl: `${siteUrl}/admin/billing/cancel`,
-      notifyUrl: `${siteUrl}/api/v1/billing/itn`,
+      notifyUrl: `${siteUrl}/api/v1/billing/ipn`,
     });
 
-    return NextResponse.json(checkoutData);
+    // CallPay returns a direct redirect URL
+    return NextResponse.json({ url });
   } catch (err) {
     console.error("Checkout error:", err);
     return NextResponse.json(

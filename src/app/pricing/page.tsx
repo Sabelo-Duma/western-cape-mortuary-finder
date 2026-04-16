@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, X, Star, Zap, Crown, ArrowLeft, Loader2 } from "lucide-react";
@@ -48,7 +48,6 @@ function CheckoutButton({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const { t } = useLanguage();
 
@@ -80,20 +79,8 @@ function CheckoutButton({
         return;
       }
 
-      // Create and submit hidden form to PayFast
-      const form = formRef.current;
-      if (!form) return;
-
-      form.action = data.url;
-      form.innerHTML = "";
-      for (const [key, value] of Object.entries(data.fields)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value as string;
-        form.appendChild(input);
-      }
-      form.submit();
+      // CallPay returns a direct redirect URL
+      window.location.href = data.url;
     } catch {
       setError("Connection error. Please try again.");
       setLoading(false);
@@ -102,7 +89,6 @@ function CheckoutButton({
 
   return (
     <div>
-      <form ref={formRef} method="POST" className="hidden" />
       <button
         onClick={handleCheckout}
         disabled={loading}
